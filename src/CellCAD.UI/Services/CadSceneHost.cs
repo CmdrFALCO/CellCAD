@@ -4,7 +4,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using CellCAD.geometry;
-using CellCAD.models;
+using CellCAD.Core.Geometry;
 using Brushes = System.Windows.Media.Brushes;
 
 namespace CellCAD.services

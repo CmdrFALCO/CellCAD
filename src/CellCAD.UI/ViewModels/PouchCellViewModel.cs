@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using CellCAD.models;
+using CellCAD.Core.Geometry;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace CellCAD.viewmodels

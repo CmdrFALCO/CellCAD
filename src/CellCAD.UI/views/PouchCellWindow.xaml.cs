@@ -2,7 +2,7 @@ using System.Windows;
 using System.ComponentModel;
 using CellCAD.services;
 using CellCAD.viewmodels;
-using CellCAD.models;
+using CellCAD.Core.Geometry;
 
 
 namespace CellCAD.views

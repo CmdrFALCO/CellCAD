@@ -12,6 +12,7 @@
         <AssemblyName>CellCAD</AssemblyName>
     </PropertyGroup>
     <ItemGroup>
+        <ProjectReference Include="..\CellCAD.Core\CellCAD.Core.csproj" />
     </ItemGroup>
 
     <ItemGroup>
