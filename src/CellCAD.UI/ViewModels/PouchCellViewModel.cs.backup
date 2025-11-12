@@ -1,0 +1,462 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using CellCAD.Core.Geometry;
+
+namespace CellCAD.UI.ViewModels
+{
+    public class PouchCellViewModel : NotifyBase, IDataErrorInfo
+    {
+        private PouchCellParameters _model;
+
+        public PouchCellViewModel() : this(PouchCellParameters.Default()) { }
+        public PouchCellViewModel(PouchCellParameters model)
+        {
+            _model = model ?? PouchCellParameters.Default();
+        }
+
+        public PouchCellParameters Model
+        {
+            get => _model;
+            set { if (value == null) return; _model = value; Raise(nameof(Model)); RaiseAll(); }
+        }
+
+        // ========== BODY ==========
+        public double Length_mm
+        {
+            get => _model.Length_mm;
+            set { _model.Length_mm = value; Raise(); Raise(nameof(IsValid)); }
+        }
+        public double Width_mm
+        {
+            get => _model.Width_mm;
+            set { _model.Width_mm = value; Raise(); Raise(nameof(IsValid)); }
+        }
+        public double Thickness_mm
+        {
+            get => _model.Thickness_mm;
+            set { _model.Thickness_mm = value; Raise(); Raise(nameof(IsValid)); }
+        }
+        public double CornerRadius_mm
+        {
+            get => _model.CornerRadius_mm;
+            set { _model.CornerRadius_mm = value; Raise(); Raise(nameof(IsValid)); }
+        }
+        public double SealThickness_mm
+        {
+            get => _model.SealThickness_mm;
+            set { _model.SealThickness_mm = value; Raise(); Raise(nameof(IsValid)); }
+        }
+
+        // ========== SHEET DESIGN ==========
+        public double CathodeHeight_mm
+        {
+            get => _model.CathodeHeight_mm;
+            set { _model.CathodeHeight_mm = value; Raise(); Raise(nameof(CathodeArea_cm2)); Raise(nameof(IsValid)); }
+        }
+        public double CathodeWidth_mm
+        {
+            get => _model.CathodeWidth_mm;
+            set { _model.CathodeWidth_mm = value; Raise(); Raise(nameof(CathodeArea_cm2)); Raise(nameof(IsValid)); }
+        }
+        public double CathodeArea_cm2 => _model.CathodeArea_cm2;
+
+        public double AnodeHeight_mm
+        {
+            get => _model.AnodeHeight_mm;
+            set { _model.AnodeHeight_mm = value; Raise(); Raise(nameof(AnodeArea_cm2)); Raise(nameof(IsValid)); }
+        }
+        public double AnodeWidth_mm
+        {
+            get => _model.AnodeWidth_mm;
+            set { _model.AnodeWidth_mm = value; Raise(); Raise(nameof(AnodeArea_cm2)); Raise(nameof(IsValid)); }
+        }
+        public double AnodeArea_cm2 => _model.AnodeArea_cm2;
+
+        public double SeparatorHeight_mm
+        {
+            get => _model.SeparatorHeight_mm;
+            set { _model.SeparatorHeight_mm = value; Raise(); Raise(nameof(SeparatorArea_cm2)); Raise(nameof(IsValid)); }
+        }
+        public double SeparatorWidth_mm
+        {
+            get => _model.SeparatorWidth_mm;
+            set { _model.SeparatorWidth_mm = value; Raise(); Raise(nameof(SeparatorArea_cm2)); Raise(nameof(IsValid)); }
+        }
+        public double SeparatorArea_cm2 => _model.SeparatorArea_cm2;
+
+        // Offsets
+        public double AnodeOffsetY_mm
+        {
+            get => _model.AnodeOffsetY_mm;
+            set { _model.AnodeOffsetY_mm = value; Raise(); Raise(nameof(IsValid)); }
+        }
+        public double AnodeOffsetX_mm
+        {
+            get => _model.AnodeOffsetX_mm;
+            set { _model.AnodeOffsetX_mm = value; Raise(); Raise(nameof(IsValid)); }
+        }
+        public double SeparatorOffsetY_mm
+        {
+            get => _model.SeparatorOffsetY_mm;
+            set { _model.SeparatorOffsetY_mm = value; Raise(); Raise(nameof(IsValid)); }
+        }
+        public double SeparatorOffsetX_mm
+        {
+            get => _model.SeparatorOffsetX_mm;
+            set { _model.SeparatorOffsetX_mm = value; Raise(); Raise(nameof(IsValid)); }
+        }
+
+        // ========== FLAGS ==========
+        public bool FlagsOnOppositeSides
+        {
+            get => _model.FlagsOnOppositeSides;
+            set { _model.FlagsOnOppositeSides = value; Raise(); }
+        }
+        public bool FlagsOnSameSide
+        {
+            get => _model.FlagsOnSameSide;
+            set { _model.FlagsOnSameSide = value; Raise(); }
+        }
+
+        public double CathodeFlagHeight_mm
+        {
+            get => _model.CathodeFlagHeight_mm;
+            set { _model.CathodeFlagHeight_mm = value; Raise(); }
+        }
+        public double CathodeFlagWidth_mm
+        {
+            get => _model.CathodeFlagWidth_mm;
+            set { _model.CathodeFlagWidth_mm = value; Raise(); }
+        }
+        public double CathodeFlagOffsetX_mm
+        {
+            get => _model.CathodeFlagOffsetX_mm;
+            set { _model.CathodeFlagOffsetX_mm = value; Raise(); }
+        }
+
+        public double AnodeFlagHeight_mm
+        {
+            get => _model.AnodeFlagHeight_mm;
+            set { _model.AnodeFlagHeight_mm = value; Raise(); }
+        }
+        public double AnodeFlagWidth_mm
+        {
+            get => _model.AnodeFlagWidth_mm;
+            set { _model.AnodeFlagWidth_mm = value; Raise(); }
+        }
+        public double AnodeFlagOffsetX_mm
+        {
+            get => _model.AnodeFlagOffsetX_mm;
+            set { _model.AnodeFlagOffsetX_mm = value; Raise(); }
+        }
+
+        // ========== STACK ==========
+        public bool UpdateStackDimensions
+        {
+            get => _model.UpdateStackDimensions;
+            set { _model.UpdateStackDimensions = value; Raise(); }
+        }
+        public double StackHeight_mm
+        {
+            get => _model.StackHeight_mm;
+            set { _model.StackHeight_mm = value; Raise(); }
+        }
+        public double StackWidth_mm
+        {
+            get => _model.StackWidth_mm;
+            set { _model.StackWidth_mm = value; Raise(); }
+        }
+
+        // ========== VALIDATION ==========
+        public bool IsValid => !GetErrors().Any();
+        public string Error => string.Join("; ", GetErrors().Select(e => e.ErrorMessage));
+
+        public string this[string columnName]
+        {
+            get
+            {
+                var results = new List<ValidationResult>();
+                var ctx = new ValidationContext(_model) { MemberName = columnName };
+
+                Validator.TryValidateProperty(
+                    value: GetType().GetProperty(columnName)?.GetValue(this, null),
+                    validationContext: ctx,
+                    validationResults: results);
+
+                results.AddRange(_model.Validate(new ValidationContext(_model))
+                    .Where(r => r.MemberNames.Contains(columnName)));
+
+                return results.FirstOrDefault()?.ErrorMessage ?? string.Empty;
+            }
+        }
+
+        public void Normalize()
+        {
+            if (_model.TryNormalize())
+            {
+                RaiseAll();
+            }
+        }
+
+        public IEnumerable<ValidationResult> GetErrors()
+        {
+            var results = new List<ValidationResult>();
+            var ctx = new ValidationContext(_model);
+            Validator.TryValidateObject(_model, ctx, results, validateAllProperties: true);
+            results.AddRange(_model.Validate(ctx));
+            return results;
+        }
+
+        private void RaiseAll()
+        {
+            // Body
+            Raise(nameof(Length_mm));
+            Raise(nameof(Width_mm));
+            Raise(nameof(Thickness_mm));
+            Raise(nameof(CornerRadius_mm));
+            Raise(nameof(SealThickness_mm));
+
+            // Sheet design
+            Raise(nameof(CathodeHeight_mm));
+            Raise(nameof(CathodeWidth_mm));
+            Raise(nameof(CathodeArea_cm2));
+            Raise(nameof(AnodeHeight_mm));
+            Raise(nameof(AnodeWidth_mm));
+            Raise(nameof(AnodeArea_cm2));
+            Raise(nameof(SeparatorHeight_mm));
+            Raise(nameof(SeparatorWidth_mm));
+            Raise(nameof(SeparatorArea_cm2));
+
+            // Offsets
+            Raise(nameof(AnodeOffsetY_mm));
+            Raise(nameof(AnodeOffsetX_mm));
+            Raise(nameof(SeparatorOffsetY_mm));
+            Raise(nameof(SeparatorOffsetX_mm));
+
+            // Flags
+            Raise(nameof(FlagsOnOppositeSides));
+            Raise(nameof(FlagsOnSameSide));
+            Raise(nameof(CathodeFlagHeight_mm));
+            Raise(nameof(CathodeFlagWidth_mm));
+            Raise(nameof(CathodeFlagOffsetX_mm));
+            Raise(nameof(AnodeFlagHeight_mm));
+            Raise(nameof(AnodeFlagWidth_mm));
+            Raise(nameof(AnodeFlagOffsetX_mm));
+
+            // Stack
+            Raise(nameof(UpdateStackDimensions));
+            Raise(nameof(StackHeight_mm));
+            Raise(nameof(StackWidth_mm));
+
+            // Tab design
+            Raise(nameof(AnodeTabMaterial));
+            Raise(nameof(AnodeTabVersion));
+            Raise(nameof(AnodeTabHeight_mm));
+            Raise(nameof(AnodeTabWidth_mm));
+            Raise(nameof(AnodeTabThickness_mm));
+            Raise(nameof(AnodeTabOverlap_mm));
+            Raise(nameof(AnodeTabMass_g));
+
+            Raise(nameof(CathodeTabMaterial));
+            Raise(nameof(CathodeTabVersion));
+            Raise(nameof(CathodeTabHeight_mm));
+            Raise(nameof(CathodeTabWidth_mm));
+            Raise(nameof(CathodeTabThickness_mm));
+            Raise(nameof(CathodeTabOverlap_mm));
+            Raise(nameof(CathodeTabMass_g));
+
+            Raise(nameof(IsValid));
+            Raise(nameof(Error));
+        }
+        // Stack Configuration properties
+        private int _numberOfStacks = 2;
+        public int NumberOfStacks
+        {
+            get => _numberOfStacks;
+            set { _numberOfStacks = value; Raise(); Raise(nameof(NumberOfElectrodePairsInCell)); }
+        }
+
+        private int _numberOfElectrodePairsInStack = 50;
+        public int NumberOfElectrodePairsInStack
+        {
+            get => _numberOfElectrodePairsInStack;
+            set { _numberOfElectrodePairsInStack = value; Raise(); Raise(nameof(NumberOfElectrodePairsInCell)); }
+        }
+
+        public int NumberOfElectrodePairsInCell => NumberOfStacks * NumberOfElectrodePairsInStack;
+
+        private int _separatorOverwraps = 1;
+        public int SeparatorOverwraps
+        {
+            get => _separatorOverwraps;
+            set { _separatorOverwraps = value; Raise(); }
+        }
+
+        private int _additionalOverwrap = 0;
+        public int AdditionalOverwrap
+        {
+            get => _additionalOverwrap;
+            set { _additionalOverwrap = value; Raise(); }
+        }
+
+        private int _insulationShell = 1;
+        public int InsulationShell
+        {
+            get => _insulationShell;
+            set { _insulationShell = value; Raise(); }
+        }
+
+        private int _fixingTapes = 1;
+        public int FixingTapes
+        {
+            get => _fixingTapes;
+            set { _fixingTapes = value; Raise(); }
+        }
+
+        // Packaging properties
+        private double _pouchFoilOffsetTop = 18;
+        public double PouchFoilOffsetTop_mm
+        {
+            get => _pouchFoilOffsetTop;
+            set { _pouchFoilOffsetTop = value; Raise(); }
+        }
+
+        private double _pouchFoilOffsetBottom = 18;
+        public double PouchFoilOffsetBottom_mm
+        {
+            get => _pouchFoilOffsetBottom;
+            set { _pouchFoilOffsetBottom = value; Raise(); }
+        }
+
+        private double _pouchFoilOffsetLeft = 5;
+        public double PouchFoilOffsetLeft_mm
+        {
+            get => _pouchFoilOffsetLeft;
+            set { _pouchFoilOffsetLeft = value; Raise(); }
+        }
+
+        private double _pouchFoilOffsetRight = 5;
+        public double PouchFoilOffsetRight_mm
+        {
+            get => _pouchFoilOffsetRight;
+            set { _pouchFoilOffsetRight = value; Raise(); }
+        }
+
+        // ========== TAB DESIGN PROPERTIES ==========
+
+        // Anode Tab
+        private string _anodeTabMaterial = "Copper mix";
+        public string AnodeTabMaterial
+        {
+            get => _anodeTabMaterial;
+            set { _anodeTabMaterial = value; Raise(); Raise(nameof(AnodeTabMass_g)); }
+        }
+
+        private int _anodeTabVersion = 1;
+        public int AnodeTabVersion
+        {
+            get => _anodeTabVersion;
+            set { _anodeTabVersion = value; Raise(); }
+        }
+
+        private double _anodeTabHeight_mm = 38;
+        public double AnodeTabHeight_mm
+        {
+            get => _anodeTabHeight_mm;
+            set { _anodeTabHeight_mm = value; Raise(); Raise(nameof(AnodeTabMass_g)); }
+        }
+
+        private double _anodeTabWidth_mm = 65;
+        public double AnodeTabWidth_mm
+        {
+            get => _anodeTabWidth_mm;
+            set { _anodeTabWidth_mm = value; Raise(); Raise(nameof(AnodeTabMass_g)); }
+        }
+
+        private double _anodeTabThickness_mm = 0.3;
+        public double AnodeTabThickness_mm
+        {
+            get => _anodeTabThickness_mm;
+            set { _anodeTabThickness_mm = value; Raise(); Raise(nameof(AnodeTabMass_g)); }
+        }
+
+        private double _anodeTabOverlap_mm = 5;
+        public double AnodeTabOverlap_mm
+        {
+            get => _anodeTabOverlap_mm;
+            set { _anodeTabOverlap_mm = value; Raise(); }
+        }
+
+        // Calculated: Anode tab mass (copper density ≈ 8.96 g/cm³)
+        public double AnodeTabMass_g
+        {
+            get
+            {
+                // Volume in cm³: (height * width * thickness) / 1000
+                double volume_cm3 = (AnodeTabHeight_mm * AnodeTabWidth_mm * AnodeTabThickness_mm) / 1000.0;
+                // Copper density: 8.96 g/cm³
+                double copperDensity = 8.96;
+                return volume_cm3 * copperDensity;
+            }
+        }
+
+        // Cathode Tab
+        private string _cathodeTabMaterial = "Aluminum";
+        public string CathodeTabMaterial
+        {
+            get => _cathodeTabMaterial;
+            set { _cathodeTabMaterial = value; Raise(); Raise(nameof(CathodeTabMass_g)); }
+        }
+
+        private int _cathodeTabVersion = 2;
+        public int CathodeTabVersion
+        {
+            get => _cathodeTabVersion;
+            set { _cathodeTabVersion = value; Raise(); }
+        }
+
+        private double _cathodeTabHeight_mm = 38;
+        public double CathodeTabHeight_mm
+        {
+            get => _cathodeTabHeight_mm;
+            set { _cathodeTabHeight_mm = value; Raise(); Raise(nameof(CathodeTabMass_g)); }
+        }
+
+        private double _cathodeTabWidth_mm = 65;
+        public double CathodeTabWidth_mm
+        {
+            get => _cathodeTabWidth_mm;
+            set { _cathodeTabWidth_mm = value; Raise(); Raise(nameof(CathodeTabMass_g)); }
+        }
+
+        private double _cathodeTabThickness_mm = 0.5;
+        public double CathodeTabThickness_mm
+        {
+            get => _cathodeTabThickness_mm;
+            set { _cathodeTabThickness_mm = value; Raise(); Raise(nameof(CathodeTabMass_g)); }
+        }
+
+        private double _cathodeTabOverlap_mm = 5;
+        public double CathodeTabOverlap_mm
+        {
+            get => _cathodeTabOverlap_mm;
+            set { _cathodeTabOverlap_mm = value; Raise(); }
+        }
+
+        // Calculated: Cathode tab mass (aluminum density ≈ 2.70 g/cm³)
+        public double CathodeTabMass_g
+        {
+            get
+            {
+                // Volume in cm³: (height * width * thickness) / 1000
+                double volume_cm3 = (CathodeTabHeight_mm * CathodeTabWidth_mm * CathodeTabThickness_mm) / 1000.0;
+                // Aluminum density: 2.70 g/cm³ 
+                double aluminumDensity = 2.70;
+                return volume_cm3 * aluminumDensity;
+            }
+        }
+    }
+}

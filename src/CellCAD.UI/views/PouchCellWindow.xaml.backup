@@ -1,0 +1,1146 @@
+<Window x:Class="CellCAD.UI.Views.PouchCellWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:CellCAD.UI.ViewModels"
+        mc:Ignorable="d"
+        Title="CellCAD – Pouch Cell Stack Designer" Height="900" Width="1600">
+
+    <Window.Resources>
+        <!-- Converters -->
+        <vm:BoolToVisibilityConverter x:Key="BoolToVis"/>
+
+        <!-- Color Definitions -->
+        <SolidColorBrush x:Key="ActiveTabBrush" Color="#0078D4"/>
+        <SolidColorBrush x:Key="InactiveTabBrush" Color="#E8E8E8"/>
+        <SolidColorBrush x:Key="InputFieldBrush" Color="Black"/>
+        <SolidColorBrush x:Key="CalculatedFieldBrush" Color="#F5F5F5"/>
+        <SolidColorBrush x:Key="HeaderBrush" Color="#444444"/>
+        <SolidColorBrush x:Key="SubHeaderBrush" Color="#666666"/>
+
+        <!-- Style for input text boxes (user editable - BLACK background) -->
+        <Style x:Key="InputTextBox" TargetType="TextBox">
+            <Setter Property="Margin" Value="2"/>
+            <Setter Property="Padding" Value="4,2"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Background" Value="Black"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="BorderBrush" Value="White"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+
+        <!-- Style for calculated/read-only fields (GRAY background) -->
+        <Style x:Key="CalcTextBox" TargetType="TextBox">
+            <Setter Property="Margin" Value="2"/>
+            <Setter Property="Padding" Value="4,2"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="IsReadOnly" Value="True"/>
+            <Setter Property="Background" Value="#F5F5F5"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="BorderBrush" Value="#CCC"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+
+        <!-- Style for tab buttons on the left (BLUE when active) -->
+        <Style x:Key="MainTabStyle" TargetType="RadioButton">
+            <Setter Property="Height" Value="50"/>
+            <Setter Property="Margin" Value="0,2"/>
+            <Setter Property="Padding" Value="12,0"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="Border" Background="#E8E8E8" BorderBrush="#CCC" BorderThickness="1" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                                            VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="#0078D4"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="#D0D0D0"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Style for sub-tabs within main sections -->
+        <Style x:Key="SubTabStyle" TargetType="RadioButton">
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Margin" Value="8,2,0,2"/>
+            <Setter Property="Padding" Value="8,0"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="Border" Background="#F0F0F0" BorderBrush="#DDD" BorderThickness="1" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                                            VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="#0078D4"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="#E0E0E0"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Table header style -->
+        <Style x:Key="TableHeader" TargetType="Border">
+            <Setter Property="Background" Value="#444444"/>
+            <Setter Property="Padding" Value="4,8"/>
+            <Setter Property="BorderBrush" Value="White"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+
+        <!-- Table header text style -->
+        <Style x:Key="HeaderText" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <!-- Left sidebar with main tabs -->
+            <ColumnDefinition Width="160" MinWidth="120"/>
+            <!-- Content area -->
+            <ColumnDefinition Width="450" MinWidth="400" MaxWidth="700"/>
+            <!-- Splitter -->
+            <ColumnDefinition Width="Auto"/>
+            <!-- 3D Viewport -->
+            <ColumnDefinition Width="*" MinWidth="500"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- ========== LEFT SIDEBAR: MAIN TAB NAVIGATION ========== -->
+        <Border Grid.Column="0" Background="#F0F0F0" BorderBrush="#AAA" BorderThickness="0,0,1,0">
+            <StackPanel Margin="8">
+                <TextBlock Text="Navigation" FontWeight="Bold" FontSize="12" Margin="0,8,0,8" Foreground="#666"/>
+
+                <!-- Main Section Tabs -->
+                <RadioButton x:Name="TabSheetDesign" Content="Sheet Design" Style="{StaticResource MainTabStyle}" IsChecked="True" GroupName="MainTabs"/>
+                <RadioButton x:Name="TabStackConfig" Content="Stack Configuration" Style="{StaticResource MainTabStyle}" GroupName="MainTabs"/>
+                <RadioButton x:Name="TabPackaging" Content="Packaging" Style="{StaticResource MainTabStyle}" GroupName="MainTabs"/>
+
+                <!-- Sub-tabs for Packaging (visible when Packaging is selected) -->
+                <StackPanel Visibility="{Binding IsChecked, ElementName=TabPackaging, Converter={StaticResource BoolToVis}}">
+                    <RadioButton x:Name="SubTabCase" Content="Case" Style="{StaticResource SubTabStyle}" IsChecked="True" GroupName="PackagingSubTabs"/>
+                    <RadioButton x:Name="SubTabOverwrap" Content="Overwrap" Style="{StaticResource SubTabStyle}" GroupName="PackagingSubTabs"/>
+                    <RadioButton x:Name="SubTabInsulationShell" Content="Insulation Shell" Style="{StaticResource SubTabStyle}" GroupName="PackagingSubTabs"/>
+                    <RadioButton x:Name="SubTabFixingTape" Content="Fixing Tape" Style="{StaticResource SubTabStyle}" GroupName="PackagingSubTabs"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- ========== CENTER: PARAMETER PANELS ========== -->
+        <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto">
+            <Border Padding="16">
+                <StackPanel>
+
+                    <!-- ========== SHEET DESIGN PANEL ========== -->
+                    <Grid x:Name="PanelSheetDesign" Visibility="{Binding IsChecked, ElementName=TabSheetDesign, Converter={StaticResource BoolToVis}}">
+                        <StackPanel>
+                            <TextBlock Text="Sheet Design" FontSize="18" FontWeight="Bold" Margin="0,0,0,16"/>
+
+                            <!-- Sheet Dimensions Table -->
+                            <TextBlock Text="Sheet Dimensions" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="140"/>
+                                    <ColumnDefinition Width="60"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <!-- Headers -->
+                                <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource TableHeader}">
+                                    <TextBlock Text="Sheet Dimensions" Style="{StaticResource HeaderText}" HorizontalAlignment="Left"/>
+                                </Border>
+                                <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource TableHeader}">
+                                    <TextBlock Text="[mm]" Style="{StaticResource HeaderText}"/>
+                                </Border>
+                                <Border Grid.Row="0" Grid.Column="2" Style="{StaticResource TableHeader}">
+                                    <TextBlock Text="Cathode" Style="{StaticResource HeaderText}"/>
+                                </Border>
+                                <Border Grid.Row="0" Grid.Column="3" Style="{StaticResource TableHeader}">
+                                    <TextBlock Text="Anode" Style="{StaticResource HeaderText}"/>
+                                </Border>
+                                <Border Grid.Row="0" Grid.Column="4" Style="{StaticResource TableHeader}">
+                                    <TextBlock Text="Separator" Style="{StaticResource HeaderText}"/>
+                                </Border>
+
+                                <!-- Height (y) row -->
+                                <Border Grid.Row="1" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                    <TextBlock Text="Height (y)" VerticalAlignment="Center"/>
+                                </Border>
+                                <Border Grid.Row="1" Grid.Column="1" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                    <TextBlock Text="[mm]" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                </Border>
+                                <Border Grid.Row="1" Grid.Column="2" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                    <TextBox Style="{StaticResource InputTextBox}" 
+                                             Text="{Binding CathodeHeight_mm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                             PreviewTextInput="NumericOnly"/>
+                                </Border>
+                                <Border Grid.Row="1" Grid.Column="3" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                    <TextBox Style="{StaticResource CalcTextBox}" 
+                                             Text="{Binding AnodeHeight_mm, Mode=OneWay}"/>
+                                </Border>
+                                <Border Grid.Row="1" Grid.Column="4" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                    <TextBox Style="{StaticResource CalcTextBox}" 
+                                             Text="{Binding SeparatorHeight_mm, Mode=OneWay}"/>
+                                </Border>
+
+                                <!-- Width (x) row -->
+                                <Border Grid.Row="2" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                    <TextBlock Text="Width (x)" VerticalAlignment="Center"/>
+                                </Border>
+                                <Border Grid.Row="2" Grid.Column="1" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                    <TextBlock Text="[mm]" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                </Border>
+                                <Border Grid.Row="2" Grid.Column="2" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                    <TextBox Style="{StaticResource InputTextBox}" 
+                                             Text="{Binding CathodeWidth_mm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                             PreviewTextInput="NumericOnly"/>
+                                </Border>
+                                <Border Grid.Row="2" Grid.Column="3" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                    <TextBox Style="{StaticResource CalcTextBox}" 
+                                             Text="{Binding AnodeWidth_mm, Mode=OneWay}"/>
+                                </Border>
+                                <Border Grid.Row="2" Grid.Column="4" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                    <TextBox Style="{StaticResource CalcTextBox}" 
+                                             Text="{Binding SeparatorWidth_mm, Mode=OneWay}"/>
+                                </Border>
+
+                                <!-- Area row -->
+                                <Border Grid.Row="3" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                    <TextBlock Text="Area" VerticalAlignment="Center"/>
+                                </Border>
+                                <Border Grid.Row="3" Grid.Column="1" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                    <TextBlock Text="[cm²]" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                </Border>
+                                <Border Grid.Row="3" Grid.Column="2" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                    <TextBox Style="{StaticResource CalcTextBox}" Text="{Binding CathodeArea_cm2, StringFormat=F1, Mode=OneWay}"/>
+                                </Border>
+                                <Border Grid.Row="3" Grid.Column="3" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                    <TextBox Style="{StaticResource CalcTextBox}" Text="{Binding AnodeArea_cm2, StringFormat=F1, Mode=OneWay}"/>
+                                </Border>
+                                <Border Grid.Row="3" Grid.Column="4" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                    <TextBox Style="{StaticResource CalcTextBox}" Text="{Binding SeparatorArea_cm2, StringFormat=F1, Mode=OneWay}"/>
+                                </Border>
+
+                                <!-- Offsets Section Header -->
+                                <Border Grid.Row="4" Grid.Column="0" Background="#666666" Padding="4,8" BorderBrush="White" BorderThickness="1" Grid.ColumnSpan="5">
+                                    <TextBlock Text="Offsets to Cathode" Foreground="White" FontWeight="Bold"/>
+                                </Border>
+
+                                <!-- Offset Height (y) -->
+                                <Border Grid.Row="5" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                    <TextBlock Text="Height (y)" VerticalAlignment="Center"/>
+                                </Border>
+                                <Border Grid.Row="5" Grid.Column="1" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                    <TextBlock Text="[mm]" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                </Border>
+                                <Border Grid.Row="5" Grid.Column="2" Background="#888" Padding="2" BorderBrush="#CCC" BorderThickness="1"/>
+                                <Border Grid.Row="5" Grid.Column="3" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                    <TextBox Style="{StaticResource CalcTextBox}" Text="{Binding AnodeOffsetY_mm, Mode=OneWay}"/>
+                                </Border>
+                                <Border Grid.Row="5" Grid.Column="4" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                    <TextBox Style="{StaticResource CalcTextBox}" Text="{Binding SeparatorOffsetY_mm, Mode=OneWay}"/>
+                                </Border>
+
+                                <!-- Offset Width (x) -->
+                                <Border Grid.Row="6" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                    <TextBlock Text="Width (x)" VerticalAlignment="Center"/>
+                                </Border>
+                                <Border Grid.Row="6" Grid.Column="1" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                    <TextBlock Text="[mm]" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                </Border>
+                                <Border Grid.Row="6" Grid.Column="2" Background="#888" Padding="2" BorderBrush="#CCC" BorderThickness="1"/>
+                                <Border Grid.Row="6" Grid.Column="3" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                    <TextBox Style="{StaticResource CalcTextBox}" Text="{Binding AnodeOffsetX_mm, Mode=OneWay}"/>
+                                </Border>
+                                <Border Grid.Row="6" Grid.Column="4" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                    <TextBox Style="{StaticResource CalcTextBox}" Text="{Binding SeparatorOffsetX_mm, Mode=OneWay}"/>
+                                </Border>
+                            </Grid>
+
+                            <!-- Flag Positions -->
+                            <TextBlock Text="Flag Positions" FontSize="14" FontWeight="SemiBold" Margin="0,24,0,8"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,4">
+                                <CheckBox Content="Opposite Sides" IsChecked="{Binding FlagsOnOppositeSides}" Margin="0,0,16,0"/>
+                                <CheckBox Content="Same Sides" IsChecked="{Binding FlagsOnSameSide}"/>
+                            </StackPanel>
+
+                            <Grid Margin="0,8,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="140"/>
+                                    <ColumnDefinition Width="60"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <!-- Headers -->
+                                <Border Grid.Row="0" Grid.Column="2" Style="{StaticResource TableHeader}">
+                                    <TextBlock Text="Cathode" Style="{StaticResource HeaderText}"/>
+                                </Border>
+                                <Border Grid.Row="0" Grid.Column="3" Style="{StaticResource TableHeader}">
+                                    <TextBlock Text="Anode" Style="{StaticResource HeaderText}"/>
+                                </Border>
+
+                                <!-- Height (y) -->
+                                <Border Grid.Row="1" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                    <TextBlock Text="Height (y)" VerticalAlignment="Center"/>
+                                </Border>
+                                <Border Grid.Row="1" Grid.Column="1" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                    <TextBlock Text="[mm]" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                </Border>
+                                <Border Grid.Row="1" Grid.Column="2" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                    <TextBox Style="{StaticResource CalcTextBox}" Text="{Binding CathodeFlagHeight_mm, Mode=OneWay}"/>
+                                </Border>
+                                <Border Grid.Row="1" Grid.Column="3" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                    <TextBox Style="{StaticResource CalcTextBox}" Text="{Binding AnodeFlagHeight_mm, Mode=OneWay}"/>
+                                </Border>
+
+                                <!-- Width (x) -->
+                                <Border Grid.Row="2" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                    <TextBlock Text="Width (x)" VerticalAlignment="Center"/>
+                                </Border>
+                                <Border Grid.Row="2" Grid.Column="1" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                    <TextBlock Text="[mm]" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                </Border>
+                                <Border Grid.Row="2" Grid.Column="2" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                    <TextBox Style="{StaticResource CalcTextBox}" Text="{Binding CathodeFlagWidth_mm, Mode=OneWay}"/>
+                                </Border>
+                                <Border Grid.Row="2" Grid.Column="3" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                    <TextBox Style="{StaticResource CalcTextBox}" Text="{Binding AnodeFlagWidth_mm, Mode=OneWay}"/>
+                                </Border>
+
+                                <!-- Offset (x) -->
+                                <Border Grid.Row="3" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                    <TextBlock Text="Offset (x)" VerticalAlignment="Center"/>
+                                </Border>
+                                <Border Grid.Row="3" Grid.Column="1" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                    <TextBlock Text="[mm]" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                </Border>
+                                <Border Grid.Row="3" Grid.Column="2" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                    <TextBox Style="{StaticResource CalcTextBox}" Text="{Binding CathodeFlagOffsetX_mm, Mode=OneWay}"/>
+                                </Border>
+                                <Border Grid.Row="3" Grid.Column="3" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                    <TextBox Style="{StaticResource CalcTextBox}" Text="{Binding AnodeFlagOffsetX_mm, Mode=OneWay}"/>
+                                </Border>
+                            </Grid>
+
+                            <!-- Update Stack Dimensions -->
+                            <Border Background="#F0F0F0" Padding="12" Margin="0,24,0,0" BorderBrush="#CCC" BorderThickness="1">
+                                <StackPanel>
+                                    <CheckBox Content="Update Stack Dimensions" IsChecked="{Binding UpdateStackDimensions}" 
+                                              FontWeight="SemiBold" Margin="0,0,0,8"/>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="140"/>
+                                            <ColumnDefinition Width="60"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+
+                                        <Border Grid.Row="0" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                            <TextBlock Text="Height (y)" VerticalAlignment="Center"/>
+                                        </Border>
+                                        <Border Grid.Row="0" Grid.Column="1" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                            <TextBlock Text="[mm]" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                        </Border>
+                                        <Border Grid.Row="0" Grid.Column="2" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                            <TextBox Style="{StaticResource InputTextBox}" 
+                                                     Text="{Binding StackHeight_mm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                                     PreviewTextInput="NumericOnly"/>
+                                        </Border>
+
+                                        <Border Grid.Row="1" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                            <TextBlock Text="Width (x)" VerticalAlignment="Center"/>
+                                        </Border>
+                                        <Border Grid.Row="1" Grid.Column="1" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                            <TextBlock Text="[mm]" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                        </Border>
+                                        <Border Grid.Row="1" Grid.Column="2" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                            <TextBox Style="{StaticResource InputTextBox}" 
+                                                     Text="{Binding StackWidth_mm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                                     PreviewTextInput="NumericOnly"/>
+                                        </Border>
+                                    </Grid>
+                                    <TextBlock Text="*Values must be between anode and separator dimensions" 
+                                               FontStyle="Italic" FontSize="10" Foreground="#666" Margin="0,8,0,0"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- ========== STACK CONFIGURATION PANEL ========== -->
+                    <Grid x:Name="PanelStackConfig" Visibility="{Binding IsChecked, ElementName=TabStackConfig, Converter={StaticResource BoolToVis}}">
+                        <StackPanel>
+                            <TextBlock Text="Stack Configuration" FontSize="18" FontWeight="Bold" Margin="0,0,0,16"/>
+
+                            <!-- Cell Configuration -->
+                            <TextBlock Text="Cell Configuration" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="250"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Number of stacks in cell" VerticalAlignment="Center" Margin="4"/>
+                                <TextBox Grid.Row="0" Grid.Column="1" Style="{StaticResource InputTextBox}" Text="2" Margin="4"/>
+
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Number of electrode pairs in stack" VerticalAlignment="Center" Margin="4"/>
+                                <TextBox Grid.Row="1" Grid.Column="1" Style="{StaticResource InputTextBox}" Text="50" Margin="4"/>
+
+                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Number of electrode pairs in cell" VerticalAlignment="Center" Margin="4"/>
+                                <TextBox Grid.Row="2" Grid.Column="1" Style="{StaticResource CalcTextBox}" Text="100" Margin="4"/>
+                            </Grid>
+
+                            <!-- End Electrodes -->
+                            <TextBlock Text="End Electrodes in Stack" FontSize="14" FontWeight="SemiBold" Margin="0,24,0,8"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0" Margin="0,0,8,0">
+                                    <RadioButton Content="Both Negative" GroupName="EndElectrodes" IsChecked="True" Margin="0,4"/>
+                                    <RadioButton Content="Both Positive" GroupName="EndElectrodes" Margin="0,4"/>
+                                    <RadioButton Content="Positive/Negative" GroupName="EndElectrodes" Margin="0,4"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="Coatings at End Electrodes" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                                    <RadioButton Content="Both double sided" GroupName="EndCoatings" IsChecked="True" Margin="0,4"/>
+                                    <RadioButton Content="1 single sided" GroupName="EndCoatings" Margin="0,4"/>
+                                    <RadioButton Content="Both single sided" GroupName="EndCoatings" Margin="0,4"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <!-- Additional Elements -->
+                            <TextBlock Text="Additional Elements" FontSize="14" FontWeight="SemiBold" Margin="0,24,0,8"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="250"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Separator overwraps (each stack)" VerticalAlignment="Center" Margin="4"/>
+                                <TextBox Grid.Row="0" Grid.Column="1" Style="{StaticResource InputTextBox}" Text="1" Margin="4"/>
+
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Add. overwrap (each stack)" VerticalAlignment="Center" Margin="4"/>
+                                <TextBox Grid.Row="1" Grid.Column="1" Style="{StaticResource InputTextBox}" Text="0" Margin="4"/>
+
+                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Insulation Shell (around all stacks)" VerticalAlignment="Center" Margin="4"/>
+                                <TextBox Grid.Row="2" Grid.Column="1" Style="{StaticResource InputTextBox}" Text="1" Margin="4"/>
+
+                                <TextBlock Grid.Row="3" Grid.Column="0" Text="Fixing Tapes" VerticalAlignment="Center" Margin="4"/>
+                                <TextBox Grid.Row="3" Grid.Column="1" Style="{StaticResource InputTextBox}" Text="1" Margin="4"/>
+                            </Grid>
+
+                            <!-- Calculated Thickness -->
+                            <TextBlock Text="Calculated Thickness" FontSize="14" FontWeight="SemiBold" Margin="0,24,0,8"/>
+                            <Border BorderBrush="#CCC" BorderThickness="1">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="200"/>
+                                        <ColumnDefinition Width="60"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+
+                                    <!-- Headers -->
+                                    <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource TableHeader}">
+                                        <TextBlock Text="Calculated Thickness" Style="{StaticResource HeaderText}" HorizontalAlignment="Left"/>
+                                    </Border>
+                                    <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource TableHeader}">
+                                        <TextBlock Text="Unit" Style="{StaticResource HeaderText}"/>
+                                    </Border>
+                                    <Border Grid.Row="0" Grid.Column="2" Style="{StaticResource TableHeader}">
+                                        <TextBlock Text="Dry Electrodes" Style="{StaticResource HeaderText}"/>
+                                    </Border>
+                                    <Border Grid.Row="0" Grid.Column="3" Style="{StaticResource TableHeader}">
+                                        <TextBlock Text="0% SoC" Style="{StaticResource HeaderText}"/>
+                                    </Border>
+                                    <Border Grid.Row="0" Grid.Column="4" Style="{StaticResource TableHeader}">
+                                        <TextBlock Text="100% SoC" Style="{StaticResource HeaderText}"/>
+                                    </Border>
+
+                                    <!-- Single Stack -->
+                                    <Border Grid.Row="1" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                        <TextBlock Text="Single Stack" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <Border Grid.Row="1" Grid.Column="1" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                        <TextBlock Text="[mm]" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                    </Border>
+                                    <Border Grid.Row="1" Grid.Column="2" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                        <TextBox Style="{StaticResource CalcTextBox}" Text="6.01"/>
+                                    </Border>
+                                    <Border Grid.Row="1" Grid.Column="3" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                        <TextBox Style="{StaticResource CalcTextBox}" Text="6.63"/>
+                                    </Border>
+                                    <Border Grid.Row="1" Grid.Column="4" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                        <TextBox Style="{StaticResource CalcTextBox}" Text="6.82"/>
+                                    </Border>
+
+                                    <!-- All Stacks and add. elements -->
+                                    <Border Grid.Row="2" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                        <TextBlock Text="All Stacks and add. elements" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                    </Border>
+                                    <Border Grid.Row="2" Grid.Column="1" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                        <TextBlock Text="[mm]" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                    </Border>
+                                    <Border Grid.Row="2" Grid.Column="2" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                        <TextBox Style="{StaticResource CalcTextBox}" Text="13.24"/>
+                                    </Border>
+                                    <Border Grid.Row="2" Grid.Column="3" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                        <TextBox Style="{StaticResource CalcTextBox}" Text="14.47"/>
+                                    </Border>
+                                    <Border Grid.Row="2" Grid.Column="4" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                        <TextBox Style="{StaticResource CalcTextBox}" Text="14.85"/>
+                                    </Border>
+
+                                    <!-- Cell outer thickness -->
+                                    <Border Grid.Row="3" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                        <TextBlock Text="Cell outer thickness" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <Border Grid.Row="3" Grid.Column="1" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                        <TextBlock Text="[mm]" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                    </Border>
+                                    <Border Grid.Row="3" Grid.Column="2" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                        <TextBox Style="{StaticResource CalcTextBox}" Text="13.54"/>
+                                    </Border>
+                                    <Border Grid.Row="3" Grid.Column="3" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                        <TextBox Style="{StaticResource CalcTextBox}" Text="14.77"/>
+                                    </Border>
+                                    <Border Grid.Row="3" Grid.Column="4" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                        <TextBox Style="{StaticResource CalcTextBox}" Text="15.16"/>
+                                    </Border>
+
+                                    <!-- Swelling Stack -->
+                                    <Border Grid.Row="4" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                        <TextBlock Text="Swelling Stack" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <Border Grid.Row="4" Grid.Column="1" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                        <TextBlock Text="[%]" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                    </Border>
+                                    <Border Grid.Row="4" Grid.Column="2" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                        <TextBox Style="{StaticResource CalcTextBox}" Text="/"/>
+                                    </Border>
+                                    <Border Grid.Row="4" Grid.Column="3" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                        <TextBox Style="{StaticResource CalcTextBox}" Text="10.32"/>
+                                    </Border>
+                                    <Border Grid.Row="4" Grid.Column="4" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                        <TextBox Style="{StaticResource CalcTextBox}" Text="2.87"/>
+                                    </Border>
+
+                                    <!-- Swelling Cell -->
+                                    <Border Grid.Row="5" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                        <TextBlock Text="Swelling Cell" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <Border Grid.Row="5" Grid.Column="1" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                        <TextBlock Text="[%]" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                    </Border>
+                                    <Border Grid.Row="5" Grid.Column="2" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                        <TextBox Style="{StaticResource CalcTextBox}" Text="/"/>
+                                    </Border>
+                                    <Border Grid.Row="5" Grid.Column="3" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                        <TextBox Style="{StaticResource CalcTextBox}" Text="9.08"/>
+                                    </Border>
+                                    <Border Grid.Row="5" Grid.Column="4" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                        <TextBox Style="{StaticResource CalcTextBox}" Text="2.64"/>
+                                    </Border>
+                                </Grid>
+                            </Border>
+
+                            <!-- Number of Sheet Layers -->
+                            <TextBlock Text="Number of Sheet Layers (in z)" FontSize="14" FontWeight="SemiBold" Margin="0,24,0,8"/>
+                            <Border BorderBrush="#CCC" BorderThickness="1">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="250"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+
+                                    <!-- Headers -->
+                                    <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource TableHeader}">
+                                        <TextBlock Text="Sheet Layers (in z)" Style="{StaticResource HeaderText}" HorizontalAlignment="Left"/>
+                                    </Border>
+                                    <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource TableHeader}">
+                                        <TextBlock Text="Stack" Style="{StaticResource HeaderText}"/>
+                                    </Border>
+                                    <Border Grid.Row="0" Grid.Column="2" Style="{StaticResource TableHeader}">
+                                        <TextBlock Text="Cell" Style="{StaticResource HeaderText}"/>
+                                    </Border>
+
+                                    <!-- Data rows -->
+                                    <Border Grid.Row="1" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                        <TextBlock Text="All Electrode Sheets" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <Border Grid.Row="1" Grid.Column="1" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                        <TextBox Style="{StaticResource CalcTextBox}" Text="101"/>
+                                    </Border>
+                                    <Border Grid.Row="1" Grid.Column="2" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                        <TextBox Style="{StaticResource CalcTextBox}" Text="202"/>
+                                    </Border>
+
+                                    <Border Grid.Row="2" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                        <TextBlock Text="Cathode Sheets" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <Border Grid.Row="2" Grid.Column="1" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                        <TextBox Style="{StaticResource CalcTextBox}" Text="50"/>
+                                    </Border>
+                                    <Border Grid.Row="2" Grid.Column="2" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                        <TextBox Style="{StaticResource CalcTextBox}" Text="100"/>
+                                    </Border>
+
+                                    <Border Grid.Row="3" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                        <TextBlock Text="Anode Sheets" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <Border Grid.Row="3" Grid.Column="1" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                        <TextBox Style="{StaticResource CalcTextBox}" Text="51"/>
+                                    </Border>
+                                    <Border Grid.Row="3" Grid.Column="2" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                        <TextBox Style="{StaticResource CalcTextBox}" Text="102"/>
+                                    </Border>
+
+                                    <Border Grid.Row="4" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                        <TextBlock Text="Separator Sheets" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <Border Grid.Row="4" Grid.Column="1" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                        <TextBox Style="{StaticResource CalcTextBox}" Text="102"/>
+                                    </Border>
+                                    <Border Grid.Row="4" Grid.Column="2" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                        <TextBox Style="{StaticResource CalcTextBox}" Text="204"/>
+                                    </Border>
+
+                                    <Border Grid.Row="5" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                        <TextBlock Text="Overwrap" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <Border Grid.Row="5" Grid.Column="1" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                        <TextBox Style="{StaticResource CalcTextBox}" Text="0"/>
+                                    </Border>
+                                    <Border Grid.Row="5" Grid.Column="2" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                        <TextBox Style="{StaticResource CalcTextBox}" Text="0"/>
+                                    </Border>
+
+                                    <Border Grid.Row="6" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                        <TextBlock Text="Insulation Shell" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <Border Grid.Row="6" Grid.Column="1" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                        <TextBox Style="{StaticResource CalcTextBox}" Text="0.5"/>
+                                    </Border>
+                                    <Border Grid.Row="6" Grid.Column="2" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                        <TextBox Style="{StaticResource CalcTextBox}" Text="1"/>
+                                    </Border>
+
+                                    <Border Grid.Row="7" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                        <TextBlock Text="Fixing Tape" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <Border Grid.Row="7" Grid.Column="1" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                        <TextBox Style="{StaticResource CalcTextBox}" Text="1"/>
+                                    </Border>
+                                    <Border Grid.Row="7" Grid.Column="2" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                        <TextBox Style="{StaticResource CalcTextBox}" Text="2"/>
+                                    </Border>
+                                </Grid>
+                            </Border>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- ========== PACKAGING PANELS ========== -->
+                    <Grid x:Name="PanelPackaging" Visibility="{Binding IsChecked, ElementName=TabPackaging, Converter={StaticResource BoolToVis}}">
+                        <StackPanel>
+
+                            <!-- CASE SUB-TAB -->
+                            <Grid x:Name="SubPanelCase" Visibility="{Binding IsChecked, ElementName=SubTabCase, Converter={StaticResource BoolToVis}}">
+                                <StackPanel>
+                                    <TextBlock Text="Packaging / Case" FontSize="18" FontWeight="Bold" Margin="0,0,0,16"/>
+
+                                    <!-- Package Material Selection -->
+                                    <TextBlock Text="Package Material" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                                    <ComboBox Margin="0,0,0,16">
+                                        <ComboBoxItem Content="PET Foil 100 um" IsSelected="True"/>
+                                        <ComboBoxItem Content="Aluminum Laminate 120 um"/>
+                                        <ComboBoxItem Content="Custom Material"/>
+                                    </ComboBox>
+
+                                    <!-- Package Material Composition Table -->
+                                    <TextBlock Text="Package Material Composition" FontSize="14" FontWeight="SemiBold" Margin="0,16,0,8"/>
+                                    <Border BorderBrush="#CCC" BorderThickness="1">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="50"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="150"/>
+                                                <ColumnDefinition Width="100"/>
+                                                <ColumnDefinition Width="100"/>
+                                                <ColumnDefinition Width="100"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+
+                                            <!-- Headers -->
+                                            <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource TableHeader}">
+                                                <TextBlock Text="No." Style="{StaticResource HeaderText}"/>
+                                            </Border>
+                                            <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource TableHeader}">
+                                                <TextBlock Text="Name" Style="{StaticResource HeaderText}"/>
+                                            </Border>
+                                            <Border Grid.Row="0" Grid.Column="2" Style="{StaticResource TableHeader}">
+                                                <TextBlock Text="Version" Style="{StaticResource HeaderText}"/>
+                                            </Border>
+                                            <Border Grid.Row="0" Grid.Column="3" Style="{StaticResource TableHeader}">
+                                                <TextBlock Text="Thickness [um]" Style="{StaticResource HeaderText}"/>
+                                            </Border>
+                                            <Border Grid.Row="0" Grid.Column="4" Style="{StaticResource TableHeader}">
+                                                <TextBlock Text="Porosity [%]" Style="{StaticResource HeaderText}"/>
+                                            </Border>
+                                            <Border Grid.Row="0" Grid.Column="5" Style="{StaticResource TableHeader}">
+                                                <TextBlock Text="Density [g/cm³]" Style="{StaticResource HeaderText}"/>
+                                            </Border>
+
+                                            <!-- Row 1 -->
+                                            <Border Grid.Row="1" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBlock Text="1" HorizontalAlignment="Center"/>
+                                            </Border>
+                                            <Border Grid.Row="1" Grid.Column="1" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBox Style="{StaticResource CalcTextBox}" Text="PET"/>
+                                            </Border>
+                                            <Border Grid.Row="1" Grid.Column="2" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                                <ComboBox>
+                                                    <ComboBoxItem Content="1 – 01.10.25" IsSelected="True"/>
+                                                </ComboBox>
+                                            </Border>
+                                            <Border Grid.Row="1" Grid.Column="3" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBox Style="{StaticResource CalcTextBox}" Text="100"/>
+                                            </Border>
+                                            <Border Grid.Row="1" Grid.Column="4" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBox Style="{StaticResource CalcTextBox}" Text="0"/>
+                                            </Border>
+                                            <Border Grid.Row="1" Grid.Column="5" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBox Style="{StaticResource CalcTextBox}" Text="0.90"/>
+                                            </Border>
+
+                                            <!-- Empty rows 2-3 -->
+                                            <Border Grid.Row="2" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBlock Text="2" HorizontalAlignment="Center"/>
+                                            </Border>
+                                            <Border Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="5" Background="#F8F8F8" BorderBrush="#CCC" BorderThickness="1"/>
+
+                                            <Border Grid.Row="3" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBlock Text="3" HorizontalAlignment="Center"/>
+                                            </Border>
+                                            <Border Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="5" Background="#F8F8F8" BorderBrush="#CCC" BorderThickness="1"/>
+                                        </Grid>
+                                    </Border>
+
+                                    <!-- Package Material Properties -->
+                                    <TextBlock Text="Package Material Properties" FontSize="14" FontWeight="SemiBold" Margin="0,24,0,8"/>
+                                    <Border Background="#F0F0F0" BorderBrush="#CCC" BorderThickness="1" Padding="12">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="200"/>
+                                                <ColumnDefinition Width="80"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+
+                                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Thickness (sum)" VerticalAlignment="Center" Margin="4"/>
+                                            <TextBlock Grid.Row="0" Grid.Column="1" Text="[um]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                            <TextBox Grid.Row="0" Grid.Column="2" Style="{StaticResource InputTextBox}" Text="13" Margin="4"/>
+                                            <TextBlock Grid.Row="0" Grid.Column="3" Text="CoA xyz" VerticalAlignment="Center" Margin="4" FontStyle="Italic"/>
+
+                                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Areal Weight" VerticalAlignment="Center" Margin="4"/>
+                                            <TextBlock Grid.Row="1" Grid.Column="1" Text="[mg/cm²]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                            <TextBox Grid.Row="1" Grid.Column="2" Style="{StaticResource CalcTextBox}" Text="0.725" Margin="4"/>
+                                            <TextBlock Grid.Row="1" Grid.Column="3" Text="Measured @CL 10.10.25" VerticalAlignment="Center" Margin="4" FontStyle="Italic"/>
+
+                                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Effective Density" VerticalAlignment="Center" Margin="4"/>
+                                            <TextBlock Grid.Row="2" Grid.Column="1" Text="[g/cm³]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                            <TextBox Grid.Row="2" Grid.Column="2" Style="{StaticResource CalcTextBox}" Text="500" Margin="4"/>
+                                            <TextBlock Grid.Row="2" Grid.Column="3" Text="Lit. from xyz" VerticalAlignment="Center" Margin="4" FontStyle="Italic"/>
+
+                                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Cost" VerticalAlignment="Center" Margin="4"/>
+                                            <TextBlock Grid.Row="3" Grid.Column="1" Text="[€/m²]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                            <TextBox Grid.Row="3" Grid.Column="2" Style="{StaticResource CalcTextBox}" Text="0.4" Margin="4"/>
+                                            <TextBlock Grid.Row="3" Grid.Column="3" Text="REC Value from 05.10.25" VerticalAlignment="Center" Margin="4" FontStyle="Italic"/>
+                                        </Grid>
+                                    </Border>
+
+                                    <!-- Pouch Foil Offset -->
+                                    <TextBlock Text="Pouch foil Offset to Separator" FontSize="14" FontWeight="SemiBold" Margin="0,24,0,8"/>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="200"/>
+                                            <ColumnDefinition Width="80"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+
+                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Top" VerticalAlignment="Center" Margin="4"/>
+                                        <TextBlock Grid.Row="0" Grid.Column="1" Text="[mm]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                        <TextBox Grid.Row="0" Grid.Column="2" Style="{StaticResource InputTextBox}" Text="18" Margin="4"/>
+
+                                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Bottom" VerticalAlignment="Center" Margin="4"/>
+                                        <TextBlock Grid.Row="1" Grid.Column="1" Text="[mm]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                        <TextBox Grid.Row="1" Grid.Column="2" Style="{StaticResource InputTextBox}" Text="18" Margin="4"/>
+
+                                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Left Side" VerticalAlignment="Center" Margin="4"/>
+                                        <TextBlock Grid.Row="2" Grid.Column="1" Text="[mm]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                        <TextBox Grid.Row="2" Grid.Column="2" Style="{StaticResource InputTextBox}" Text="5" Margin="4"/>
+
+                                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Right Side" VerticalAlignment="Center" Margin="4"/>
+                                        <TextBlock Grid.Row="3" Grid.Column="1" Text="[mm]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                        <TextBox Grid.Row="3" Grid.Column="2" Style="{StaticResource InputTextBox}" Text="5" Margin="4"/>
+                                    </Grid>
+
+                                    <!-- Calculated Cell Dimensions -->
+                                    <TextBlock Text="Cell Dimensions" FontSize="14" FontWeight="SemiBold" Margin="0,24,0,8"/>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="250"/>
+                                            <ColumnDefinition Width="80"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+
+                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Calculated Cell height" VerticalAlignment="Center" Margin="4"/>
+                                        <TextBlock Grid.Row="0" Grid.Column="1" Text="[mm]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                        <TextBox Grid.Row="0" Grid.Column="2" Style="{StaticResource CalcTextBox}" Text="420" Margin="4"/>
+
+                                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Calculated Cell width" VerticalAlignment="Center" Margin="4"/>
+                                        <TextBlock Grid.Row="1" Grid.Column="1" Text="[mm]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                        <TextBox Grid.Row="1" Grid.Column="2" Style="{StaticResource CalcTextBox}" Text="95" Margin="4"/>
+                                    </Grid>
+
+                                    <!-- Measured Dimensions -->
+                                    <CheckBox Content="Update Cell Dimension based on measurement" FontWeight="SemiBold" Margin="0,16,0,8" IsChecked="True"/>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="250"/>
+                                            <ColumnDefinition Width="80"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+
+                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Measured Cell height" VerticalAlignment="Center" Margin="4"/>
+                                        <TextBlock Grid.Row="0" Grid.Column="1" Text="[mm]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                        <TextBox Grid.Row="0" Grid.Column="2" Style="{StaticResource InputTextBox}" Text="420" Margin="4"/>
+
+                                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Measured Cell width" VerticalAlignment="Center" Margin="4"/>
+                                        <TextBlock Grid.Row="1" Grid.Column="1" Text="[mm]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                        <TextBox Grid.Row="1" Grid.Column="2" Style="{StaticResource InputTextBox}" Text="85" Margin="4"/>
+                                    </Grid>
+
+                                    <!-- Tab Design -->
+                                    <TextBlock Text="Tab Design" FontSize="14" FontWeight="SemiBold" Margin="0,24,0,8"/>
+                                    <Border BorderBrush="#CCC" BorderThickness="1">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="250"/>
+                                                <ColumnDefinition Width="80"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+
+                                            <!-- Headers -->
+                                            <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource TableHeader}">
+                                                <TextBlock Text="Tab Design" Style="{StaticResource HeaderText}" HorizontalAlignment="Left"/>
+                                            </Border>
+                                            <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource TableHeader}">
+                                                <TextBlock Text="Unit" Style="{StaticResource HeaderText}"/>
+                                            </Border>
+                                            <Border Grid.Row="0" Grid.Column="2" Style="{StaticResource TableHeader}">
+                                                <TextBlock Text="Anode" Style="{StaticResource HeaderText}"/>
+                                            </Border>
+                                            <Border Grid.Row="0" Grid.Column="3" Style="{StaticResource TableHeader}">
+                                                <TextBlock Text="Cathode" Style="{StaticResource HeaderText}"/>
+                                            </Border>
+
+                                            <!-- Tab Material -->
+                                            <Border Grid.Row="1" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBlock Text="Tab Material" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <Border Grid.Row="1" Grid.Column="1" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1"/>
+                                            <Border Grid.Row="1" Grid.Column="2" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBox Style="{StaticResource InputTextBox}" Text="Copper mix" Margin="4"/>
+                                            </Border>
+                                            <Border Grid.Row="1" Grid.Column="3" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBox Style="{StaticResource InputTextBox}" Text="Aluminum" Margin="4"/>
+                                            </Border>
+
+                                            <!-- Version -->
+                                            <Border Grid.Row="2" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBlock Text="Version" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <Border Grid.Row="2" Grid.Column="1" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1"/>
+                                            <Border Grid.Row="2" Grid.Column="2" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBox Style="{StaticResource InputTextBox}" Text="1" Margin="4"/>
+                                            </Border>
+                                            <Border Grid.Row="2" Grid.Column="3" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBox Style="{StaticResource InputTextBox}" Text="2" Margin="4"/>
+                                            </Border>
+
+                                            <!-- Height -->
+                                            <Border Grid.Row="3" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBlock Text="Height" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <Border Grid.Row="3" Grid.Column="1" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBlock Text="[mm]" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                            </Border>
+                                            <Border Grid.Row="3" Grid.Column="2" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBox Style="{StaticResource InputTextBox}" Text="38" Margin="4"/>
+                                            </Border>
+                                            <Border Grid.Row="3" Grid.Column="3" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBox Style="{StaticResource InputTextBox}" Text="38" Margin="4"/>
+                                            </Border>
+
+                                            <!-- Width -->
+                                            <Border Grid.Row="4" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBlock Text="Width" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <Border Grid.Row="4" Grid.Column="1" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBlock Text="[mm]" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                            </Border>
+                                            <Border Grid.Row="4" Grid.Column="2" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBox Style="{StaticResource InputTextBox}" Text="65" Margin="4"/>
+                                            </Border>
+                                            <Border Grid.Row="4" Grid.Column="3" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBox Style="{StaticResource InputTextBox}" Text="65" Margin="4"/>
+                                            </Border>
+
+                                            <!-- Thickness -->
+                                            <Border Grid.Row="5" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBlock Text="Thickness" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <Border Grid.Row="5" Grid.Column="1" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBlock Text="[mm]" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                            </Border>
+                                            <Border Grid.Row="5" Grid.Column="2" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBox Style="{StaticResource InputTextBox}" Text="0.3" Margin="4"/>
+                                            </Border>
+                                            <Border Grid.Row="5" Grid.Column="3" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBox Style="{StaticResource InputTextBox}" Text="0.5" Margin="4"/>
+                                            </Border>
+
+                                            <!-- Overlap distance -->
+                                            <Border Grid.Row="6" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBlock Text="Overlap distance with flags" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                            </Border>
+                                            <Border Grid.Row="6" Grid.Column="1" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBlock Text="[mm]" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                            </Border>
+                                            <Border Grid.Row="6" Grid.Column="2" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBox Style="{StaticResource InputTextBox}" Text="5" Margin="4"/>
+                                            </Border>
+                                            <Border Grid.Row="6" Grid.Column="3" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBox Style="{StaticResource InputTextBox}" Text="5" Margin="4"/>
+                                            </Border>
+
+                                            <!-- Calculated Mass (read-only row) -->
+                                            <!-- Note: This should actually be at the bottom, but keeping layout consistent -->
+                                        </Grid>
+                                    </Border>
+
+                                    <!-- Calculated Mass (separate from table) -->
+                                    <Grid Margin="0,8,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="250"/>
+                                            <ColumnDefinition Width="80"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <TextBlock Grid.Column="0" Text="Calculated Mass" VerticalAlignment="Center" FontWeight="SemiBold" Margin="4"/>
+                                        <TextBlock Grid.Column="1" Text="[g]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                        <TextBox Grid.Column="2" Style="{StaticResource CalcTextBox}" Text="15" Margin="4"/>
+                                        <TextBox Grid.Column="3" Style="{StaticResource CalcTextBox}" Text="10" Margin="4"/>
+                                    </Grid>
+                                </StackPanel>
+                            </Grid>
+
+                            <!-- OVERWRAP SUB-TAB -->
+                            <Grid x:Name="SubPanelOverwrap" Visibility="{Binding IsChecked, ElementName=SubTabOverwrap, Converter={StaticResource BoolToVis}}">
+                                <StackPanel>
+                                    <TextBlock Text="Packaging / Overwrap" FontSize="18" FontWeight="Bold" Margin="0,0,0,16"/>
+                                    <TextBlock Text="(Overwrap parameters coming soon...)" 
+                                             FontStyle="Italic" Foreground="#666" FontSize="12"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <!-- INSULATION SHELL SUB-TAB -->
+                            <Grid x:Name="SubPanelInsulationShell" Visibility="{Binding IsChecked, ElementName=SubTabInsulationShell, Converter={StaticResource BoolToVis}}">
+                                <StackPanel>
+                                    <TextBlock Text="Packaging / Insulation Shell" FontSize="18" FontWeight="Bold" Margin="0,0,0,16"/>
+                                    <TextBlock Text="(Insulation Shell parameters coming soon...)" 
+                                             FontStyle="Italic" Foreground="#666" FontSize="12"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <!-- FIXING TAPE SUB-TAB -->
+                            <Grid x:Name="SubPanelFixingTape" Visibility="{Binding IsChecked, ElementName=SubTabFixingTape, Converter={StaticResource BoolToVis}}">
+                                <StackPanel>
+                                    <TextBlock Text="Packaging / Fixing Tape" FontSize="18" FontWeight="Bold" Margin="0,0,0,16"/>
+                                    <TextBlock Text="(Fixing Tape parameters coming soon...)" 
+                                             FontStyle="Italic" Foreground="#666" FontSize="12"/>
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+                    </Grid>
+
+                </StackPanel>
+            </Border>
+        </ScrollViewer>
+
+        <!-- ========== SPLITTER ========== -->
+        <GridSplitter Grid.Column="2" 
+                      Width="5" 
+                      HorizontalAlignment="Stretch" 
+                      VerticalAlignment="Stretch"
+                      Background="#555"
+                      ShowsPreview="False"/>
+
+        <!-- ========== RIGHT: 3D VIEWPORT + 2D SCHEMATIC ========== -->
+        <Grid Grid.Column="3">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" MinHeight="400"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="300" MinHeight="200"/>
+            </Grid.RowDefinitions>
+
+            <!-- Top: 3D CAD Viewport -->
+            <Border Grid.Row="0" Background="#1A1A1C" Padding="8">
+                <ContentControl x:Name="ViewportHost"/>
+            </Border>
+
+            <!-- Middle: Splitter -->
+            <GridSplitter Grid.Row="1" 
+                          Height="5" 
+                          HorizontalAlignment="Stretch" 
+                          VerticalAlignment="Stretch"
+                          Background="#555"
+                          ShowsPreview="False"/>
+
+            <!-- Bottom: 2D Schematic -->
+            <Border Grid.Row="2" Background="White" BorderBrush="#CCC" BorderThickness="1" Padding="4">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Header -->
+                    <Border Grid.Row="0" Background="#F0F0F0" Padding="8,4" BorderBrush="#CCC" BorderThickness="0,0,0,1">
+                        <TextBlock Text="Electrode Layout (2D)" FontWeight="SemiBold" FontSize="12"/>
+                    </Border>
+
+                    <!-- Schematic Canvas -->
+                    <Border Grid.Row="1" x:Name="SchematicHost" Background="White"/>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>

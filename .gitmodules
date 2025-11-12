@@ -1,0 +1,3 @@
+[submodule "src/lib/CADability"]
+	path = src/lib/CADability
+	url = https://github.com/FriendsOfCADability/CADability.git

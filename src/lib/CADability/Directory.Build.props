@@ -1,0 +1,9 @@
+<Project>
+  <PropertyGroup>
+    <!-- Stop root props from bleeding into the submodule -->
+    <ImplicitUsings>false</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <!-- If you have Analyzers/StyleCop/etc. globally, you can also neutralize them here -->
+    <!-- <EnableNETAnalyzers>false</EnableNETAnalyzers> -->
+  </PropertyGroup>
+</Project>

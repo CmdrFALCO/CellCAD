@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <LangVersion>latest</LangVersion>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Platforms>x64</Platforms>
+        <PlatformTarget>x64</PlatformTarget>
+        <Prefer32Bit>false</Prefer32Bit>
+        <BaseOutputPath></BaseOutputPath>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
+        <Compile Remove="Geometry\PouchCellValidation.cs" />
+        <None Include="Geometry\PouchCellValidation.cs" />
+        <Compile Remove="Geometry\PouchCellBuilder.cs" />
+        <None Include="Geometry\PouchCellBuilder.cs" />
+    </ItemGroup>
+</Project>
