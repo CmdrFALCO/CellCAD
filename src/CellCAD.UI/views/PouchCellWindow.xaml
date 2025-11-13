@@ -890,77 +890,94 @@
 
                                         <!-- Package Material Composition Table -->
                                     <TextBlock Text="Package Material Composition" FontSize="14" FontWeight="SemiBold" Margin="0,16,0,8"/>
-                                    <Border BorderBrush="#CCC" BorderThickness="1">
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="50"/>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="150"/>
-                                                <ColumnDefinition Width="100"/>
-                                                <ColumnDefinition Width="100"/>
-                                                <ColumnDefinition Width="100"/>
-                                            </Grid.ColumnDefinitions>
-                                            <Grid.RowDefinitions>
-                                                <RowDefinition Height="Auto"/>
-                                                <RowDefinition Height="Auto"/>
-                                                <RowDefinition Height="Auto"/>
-                                                <RowDefinition Height="Auto"/>
-                                            </Grid.RowDefinitions>
-
-                                            <!-- Headers -->
-                                            <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource TableHeader}">
-                                                <TextBlock Text="No." Style="{StaticResource HeaderText}"/>
-                                            </Border>
-                                            <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource TableHeader}">
-                                                <TextBlock Text="Name" Style="{StaticResource HeaderText}"/>
-                                            </Border>
-                                            <Border Grid.Row="0" Grid.Column="2" Style="{StaticResource TableHeader}">
-                                                <TextBlock Text="Version" Style="{StaticResource HeaderText}"/>
-                                            </Border>
-                                            <Border Grid.Row="0" Grid.Column="3" Style="{StaticResource TableHeader}">
-                                                <TextBlock Text="Thickness [um]" Style="{StaticResource HeaderText}"/>
-                                            </Border>
-                                            <Border Grid.Row="0" Grid.Column="4" Style="{StaticResource TableHeader}">
-                                                <TextBlock Text="Porosity [%]" Style="{StaticResource HeaderText}"/>
-                                            </Border>
-                                            <Border Grid.Row="0" Grid.Column="5" Style="{StaticResource TableHeader}">
-                                                <TextBlock Text="Density [g/cm³]" Style="{StaticResource HeaderText}"/>
-                                            </Border>
-
-                                            <!-- Row 1 -->
-                                            <Border Grid.Row="1" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
-                                                <TextBlock Text="1" HorizontalAlignment="Center"/>
-                                            </Border>
-                                            <Border Grid.Row="1" Grid.Column="1" Padding="2" BorderBrush="#CCC" BorderThickness="1">
-                                                <TextBox Style="{StaticResource CalcTextBox}" Text="PET"/>
-                                            </Border>
-                                            <Border Grid.Row="1" Grid.Column="2" Padding="2" BorderBrush="#CCC" BorderThickness="1">
-                                                <ComboBox>
-                                                    <ComboBoxItem Content="1 – 01.10.25" IsSelected="True"/>
-                                                </ComboBox>
-                                            </Border>
-                                            <Border Grid.Row="1" Grid.Column="3" Padding="2" BorderBrush="#CCC" BorderThickness="1">
-                                                <TextBox Style="{StaticResource CalcTextBox}" Text="100"/>
-                                            </Border>
-                                            <Border Grid.Row="1" Grid.Column="4" Padding="2" BorderBrush="#CCC" BorderThickness="1">
-                                                <TextBox Style="{StaticResource CalcTextBox}" Text="0"/>
-                                            </Border>
-                                            <Border Grid.Row="1" Grid.Column="5" Padding="2" BorderBrush="#CCC" BorderThickness="1">
-                                                <TextBox Style="{StaticResource CalcTextBox}" Text="0.90"/>
-                                            </Border>
-
-                                            <!-- Empty rows 2-3 -->
-                                            <Border Grid.Row="2" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
-                                                <TextBlock Text="2" HorizontalAlignment="Center"/>
-                                            </Border>
-                                            <Border Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="5" Background="#F8F8F8" BorderBrush="#CCC" BorderThickness="1"/>
-
-                                            <Border Grid.Row="3" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
-                                                <TextBlock Text="3" HorizontalAlignment="Center"/>
-                                            </Border>
-                                            <Border Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="5" Background="#F8F8F8" BorderBrush="#CCC" BorderThickness="1"/>
-                                        </Grid>
-                                    </Border>
+                                    <DataGrid ItemsSource="{Binding CaseComposition}"
+                                              IsReadOnly="True"
+                                              CanUserAddRows="False"
+                                              CanUserDeleteRows="False"
+                                              CanUserReorderColumns="False"
+                                              CanUserResizeRows="False"
+                                              CanUserSortColumns="False"
+                                              AutoGenerateColumns="False"
+                                              HeadersVisibility="Column"
+                                              GridLinesVisibility="All"
+                                              BorderBrush="#CCC"
+                                              BorderThickness="1"
+                                              Background="White"
+                                              RowBackground="White"
+                                              AlternatingRowBackground="#F8F8F8"
+                                              Margin="0,0,0,8">
+                                        <DataGrid.ColumnHeaderStyle>
+                                            <Style TargetType="DataGridColumnHeader">
+                                                <Setter Property="Background" Value="#333"/>
+                                                <Setter Property="Foreground" Value="White"/>
+                                                <Setter Property="FontWeight" Value="Bold"/>
+                                                <Setter Property="Padding" Value="8,4"/>
+                                                <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                                                <Setter Property="BorderBrush" Value="#CCC"/>
+                                                <Setter Property="BorderThickness" Value="0,0,1,1"/>
+                                            </Style>
+                                        </DataGrid.ColumnHeaderStyle>
+                                        <DataGrid.CellStyle>
+                                            <Style TargetType="DataGridCell">
+                                                <Setter Property="Padding" Value="4"/>
+                                                <Setter Property="BorderBrush" Value="#CCC"/>
+                                                <Setter Property="BorderThickness" Value="0,0,1,1"/>
+                                            </Style>
+                                        </DataGrid.CellStyle>
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn Header="#" Binding="{Binding No}" Width="40">
+                                                <DataGridTextColumn.ElementStyle>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="HorizontalAlignment" Value="Center"/>
+                                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                                    </Style>
+                                                </DataGridTextColumn.ElementStyle>
+                                            </DataGridTextColumn>
+                                            <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*" MinWidth="120">
+                                                <DataGridTextColumn.ElementStyle>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                                        <Setter Property="Margin" Value="4,0"/>
+                                                    </Style>
+                                                </DataGridTextColumn.ElementStyle>
+                                            </DataGridTextColumn>
+                                            <DataGridTextColumn Header="Version" Binding="{Binding Version}" Width="140">
+                                                <DataGridTextColumn.ElementStyle>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="HorizontalAlignment" Value="Center"/>
+                                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                                    </Style>
+                                                </DataGridTextColumn.ElementStyle>
+                                            </DataGridTextColumn>
+                                            <DataGridTextColumn Header="Thickness [µm]" Binding="{Binding Thickness_um, StringFormat=F2}" Width="140">
+                                                <DataGridTextColumn.ElementStyle>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="HorizontalAlignment" Value="Right"/>
+                                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                                        <Setter Property="Margin" Value="0,0,8,0"/>
+                                                    </Style>
+                                                </DataGridTextColumn.ElementStyle>
+                                            </DataGridTextColumn>
+                                            <DataGridTextColumn Header="Porosity [%]" Binding="{Binding Porosity_pct, StringFormat=F2}" Width="120">
+                                                <DataGridTextColumn.ElementStyle>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="HorizontalAlignment" Value="Right"/>
+                                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                                        <Setter Property="Margin" Value="0,0,8,0"/>
+                                                    </Style>
+                                                </DataGridTextColumn.ElementStyle>
+                                            </DataGridTextColumn>
+                                            <DataGridTextColumn Header="Density [g/cm³]" Binding="{Binding Density_gcm3, StringFormat=F4}" Width="140">
+                                                <DataGridTextColumn.ElementStyle>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="HorizontalAlignment" Value="Right"/>
+                                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                                        <Setter Property="Margin" Value="0,0,8,0"/>
+                                                    </Style>
+                                                </DataGridTextColumn.ElementStyle>
+                                            </DataGridTextColumn>
+                                        </DataGrid.Columns>
+                                    </DataGrid>
 
                                     <!-- Package Material Properties -->
                                     <TextBlock Text="Package Material Properties" FontSize="14" FontWeight="SemiBold" Margin="0,24,0,8"/>
@@ -1399,12 +1416,43 @@
                                Margin="0,0,0,8"
                                TextWrapping="Wrap"/>
 
-                    <!-- Preview Canvas -->
-                    <Canvas x:Name="CasePreviewCanvas"
-                            Grid.Row="1"
-                            Background="White"
-                            Focusable="False"
-                            ClipToBounds="True"/>
+                    <!-- Preview Canvas with Axis Labels -->
+                    <Grid Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Y Axis Label -->
+                        <TextBlock Grid.Column="0" Grid.Row="0"
+                                   Text="Y"
+                                   FontSize="11"
+                                   VerticalAlignment="Center"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,0,4,0"/>
+
+                        <!-- Canvas -->
+                        <Canvas x:Name="CasePreviewCanvas"
+                                Grid.Column="1" Grid.Row="0"
+                                Background="White"
+                                Focusable="False"
+                                ClipToBounds="True"
+                                Margin="8"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Stretch"/>
+
+                        <!-- X Axis Label -->
+                        <TextBlock Grid.Column="1" Grid.Row="1"
+                                   Text="X"
+                                   FontSize="11"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   Margin="0,4,0,0"/>
+                    </Grid>
                 </Grid>
             </Border>
         </Grid>

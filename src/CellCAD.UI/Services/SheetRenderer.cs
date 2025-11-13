@@ -259,8 +259,8 @@ namespace CellCAD.services
             double pouchW = sepW + offsetLeft + offsetRight;
             double pouchH = sepH + offsetTop + offsetBottom;
 
-            // Compute scale with padding
-            double padding = 20;
+            // Compute scale with padding (canvas now has margin in XAML, so we use less padding here)
+            double padding = 12;
             double availableWidth = target.ActualWidth > 0 ? target.ActualWidth - 2 * padding : 380;
             double availableHeight = target.ActualHeight > 0 ? target.ActualHeight - 2 * padding : 500;
 
@@ -280,7 +280,7 @@ namespace CellCAD.services
                 centerY,
                 pouchW * scale,
                 pouchH * scale,
-                Colors.DarkGray, 2.5);
+                Colors.DarkGray, 3.0);
             target.Children.Add(pouchRect);
 
             // Draw separator (inner rectangle - thinner, blue)

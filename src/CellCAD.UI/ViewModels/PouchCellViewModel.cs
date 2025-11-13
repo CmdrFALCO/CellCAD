@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -16,6 +17,12 @@ namespace CellCAD.viewmodels
         public PouchCellViewModel(PouchCellParameters model)
         {
             _model = model ?? PouchCellParameters.Default();
+
+            // Hook up auto-sum for Case composition
+            CaseComposition.CollectionChanged += (_, __) => RecalcFromComposition();
+
+            // Populate with sample data (will be replaced by DB load later)
+            LoadSampleComposition();
         }
 
         public PouchCellParameters Model
@@ -665,6 +672,96 @@ OnPropertyChanged(nameof(Error));
                 _pouchOffsetRight_mm = value;
                 OnPropertyChanged();
             }
+        }
+
+        // ========== PACKAGING → CASE: Composition ==========
+
+        /// <summary>
+        /// Read-only composition backing the Case tab (layers loaded from DB)
+        /// </summary>
+        public ObservableCollection<PackagingLayer> CaseComposition { get; } = new();
+
+        /// <summary>
+        /// Optional: allow turning auto-sync on/off later if needed
+        /// </summary>
+        private bool _autoSyncFromComposition = true;
+        public bool AutoSyncFromComposition
+        {
+            get => _autoSyncFromComposition;
+            set { _autoSyncFromComposition = value; OnPropertyChanged(); }
+        }
+
+        /// <summary>
+        /// Recalculate totals from CaseComposition and push into the three properties
+        /// Uses porosity-adjusted effective density for each layer
+        /// </summary>
+        private void RecalcFromComposition()
+        {
+            if (!AutoSyncFromComposition) return;
+
+            double sumThickness_um = 0.0;
+            double sumTW_um_gcm3 = 0.0; // Σ(t_i * ρ_eff_i) with t in µm, ρ_eff in g/cm³
+            double sumAreal_mgcm2 = 0.0;
+
+            foreach (var L in CaseComposition)
+            {
+                sumThickness_um += L.Thickness_um;
+                sumTW_um_gcm3   += L.Thickness_um * L.EffectiveDensity_gcm3;
+                sumAreal_mgcm2  += L.ArealWeight_mgcm2;
+            }
+
+            // Effective density of the laminate:
+            // ρ_eff,laminate = (Σ t_i ρ_eff_i) / (Σ t_i), with t in consistent length units (µm cancels out in ratio)
+            double effDensity_gcm3 = (sumThickness_um > 0) ? (sumTW_um_gcm3 / sumThickness_um) : 0.0;
+
+            // Push into the three properties (these are user-editable, but overwritten on composition change)
+            // Set backing fields directly to avoid triggering RaiseCaseMassChain multiple times
+            _packageThicknessSum_um   = Math.Max(0, sumThickness_um);
+            _packageArealWeight_mgcm2 = Math.Max(0, sumAreal_mgcm2);
+            _packageEffDensity_gcm3   = Math.Max(0, effDensity_gcm3);
+
+            // Raise property changed notifications
+            OnPropertyChanged(nameof(PackageThicknessSum_um));
+            OnPropertyChanged(nameof(PackageArealWeight_mgcm2));
+            OnPropertyChanged(nameof(PackageEffDensity_gcm3));
+
+            // Raise dependent chains
+            RaiseCaseMassChain();
+        }
+
+        /// <summary>
+        /// Load sample composition data (will be replaced by DB load later)
+        /// </summary>
+        private void LoadSampleComposition()
+        {
+            CaseComposition.Clear();
+            CaseComposition.Add(new PackagingLayer
+            {
+                No = 1,
+                Name = "PA 15µm",
+                Version = "1 – 01.10.25",
+                Thickness_um = 15.0,
+                Porosity_pct = 0.0,
+                Density_gcm3 = 1.15
+            });
+            CaseComposition.Add(new PackagingLayer
+            {
+                No = 2,
+                Name = "Al foil 40µm",
+                Version = "2 – 15.09.25",
+                Thickness_um = 40.0,
+                Porosity_pct = 0.0,
+                Density_gcm3 = 2.70
+            });
+            CaseComposition.Add(new PackagingLayer
+            {
+                No = 3,
+                Name = "PP 60µm",
+                Version = "1 – 20.08.25",
+                Thickness_um = 60.0,
+                Porosity_pct = 0.0,
+                Density_gcm3 = 0.90
+            });
         }
 
         // Package Material Properties (TwoWay, editable)
