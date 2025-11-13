@@ -55,120 +55,276 @@ namespace CellCAD.viewmodels
         public double CathodeHeight_mm
         {
             get => _model.CathodeHeight_mm;
-            set { _model.CathodeHeight_mm = value;OnPropertyChanged();OnPropertyChanged(nameof(CathodeArea_cm2));OnPropertyChanged(nameof(IsValid)); }
+            set
+            {
+                if (value < 0) value = 0;
+                _model.CathodeHeight_mm = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(CathodeArea_cm2));
+                OnPropertyChanged(nameof(AnodeHeight_mm));
+                OnPropertyChanged(nameof(AnodeArea_cm2));
+                OnPropertyChanged(nameof(SeparatorHeight_mm));
+                OnPropertyChanged(nameof(SeparatorArea_cm2));
+                OnPropertyChanged(nameof(IsValid));
+                // Re-clamp stack if enabled
+                if (UpdateStackDimensions) StackHeight_mm = _model.StackHeight_mm;
+            }
         }
         public double CathodeWidth_mm
         {
             get => _model.CathodeWidth_mm;
-            set { _model.CathodeWidth_mm = value;OnPropertyChanged();OnPropertyChanged(nameof(CathodeArea_cm2));OnPropertyChanged(nameof(IsValid)); }
+            set
+            {
+                if (value < 0) value = 0;
+                _model.CathodeWidth_mm = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(CathodeArea_cm2));
+                OnPropertyChanged(nameof(AnodeWidth_mm));
+                OnPropertyChanged(nameof(AnodeArea_cm2));
+                OnPropertyChanged(nameof(SeparatorWidth_mm));
+                OnPropertyChanged(nameof(SeparatorArea_cm2));
+                OnPropertyChanged(nameof(IsValid));
+                // Re-clamp stack if enabled
+                if (UpdateStackDimensions) StackWidth_mm = _model.StackWidth_mm;
+            }
         }
         public double CathodeArea_cm2 => _model.CathodeArea_cm2;
 
-        public double AnodeHeight_mm
-        {
-            get => _model.AnodeHeight_mm;
-            set { _model.AnodeHeight_mm = value;OnPropertyChanged();OnPropertyChanged(nameof(AnodeArea_cm2));OnPropertyChanged(nameof(IsValid)); }
-        }
-        public double AnodeWidth_mm
-        {
-            get => _model.AnodeWidth_mm;
-            set { _model.AnodeWidth_mm = value;OnPropertyChanged();OnPropertyChanged(nameof(AnodeArea_cm2));OnPropertyChanged(nameof(IsValid)); }
-        }
-        public double AnodeArea_cm2 => _model.AnodeArea_cm2;
+        // Calculated properties based on cathode + offsets
+        public double AnodeHeight_mm => CathodeHeight_mm + 2 * AnodeOffsetY_mm;
+        public double AnodeWidth_mm => CathodeWidth_mm + 2 * AnodeOffsetX_mm;
+        public double AnodeArea_cm2 => (AnodeWidth_mm * AnodeHeight_mm) / 100.0;
 
-        public double SeparatorHeight_mm
-        {
-            get => _model.SeparatorHeight_mm;
-            set { _model.SeparatorHeight_mm = value;OnPropertyChanged();OnPropertyChanged(nameof(SeparatorArea_cm2));OnPropertyChanged(nameof(IsValid)); }
-        }
-        public double SeparatorWidth_mm
-        {
-            get => _model.SeparatorWidth_mm;
-            set { _model.SeparatorWidth_mm = value;OnPropertyChanged();OnPropertyChanged(nameof(SeparatorArea_cm2));OnPropertyChanged(nameof(IsValid)); }
-        }
-        public double SeparatorArea_cm2 => _model.SeparatorArea_cm2;
+        public double SeparatorHeight_mm => AnodeHeight_mm + 2 * SeparatorOffsetY_mm;
+        public double SeparatorWidth_mm => AnodeWidth_mm + 2 * SeparatorOffsetX_mm;
+        public double SeparatorArea_cm2 => (SeparatorWidth_mm * SeparatorHeight_mm) / 100.0;
 
         // Offsets
         public double AnodeOffsetY_mm
         {
             get => _model.AnodeOffsetY_mm;
-            set { _model.AnodeOffsetY_mm = value;OnPropertyChanged();OnPropertyChanged(nameof(IsValid)); }
+            set
+            {
+                if (value < 0) value = 0;
+                _model.AnodeOffsetY_mm = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(AnodeHeight_mm));
+                OnPropertyChanged(nameof(AnodeArea_cm2));
+                OnPropertyChanged(nameof(SeparatorHeight_mm));
+                OnPropertyChanged(nameof(SeparatorArea_cm2));
+                OnPropertyChanged(nameof(IsValid));
+                if (UpdateStackDimensions) StackHeight_mm = _model.StackHeight_mm;
+            }
         }
         public double AnodeOffsetX_mm
         {
             get => _model.AnodeOffsetX_mm;
-            set { _model.AnodeOffsetX_mm = value;OnPropertyChanged();OnPropertyChanged(nameof(IsValid)); }
+            set
+            {
+                if (value < 0) value = 0;
+                _model.AnodeOffsetX_mm = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(AnodeWidth_mm));
+                OnPropertyChanged(nameof(AnodeArea_cm2));
+                OnPropertyChanged(nameof(SeparatorWidth_mm));
+                OnPropertyChanged(nameof(SeparatorArea_cm2));
+                OnPropertyChanged(nameof(IsValid));
+                if (UpdateStackDimensions) StackWidth_mm = _model.StackWidth_mm;
+            }
         }
         public double SeparatorOffsetY_mm
         {
             get => _model.SeparatorOffsetY_mm;
-            set { _model.SeparatorOffsetY_mm = value;OnPropertyChanged();OnPropertyChanged(nameof(IsValid)); }
+            set
+            {
+                if (value < 0) value = 0;
+                _model.SeparatorOffsetY_mm = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(SeparatorHeight_mm));
+                OnPropertyChanged(nameof(SeparatorArea_cm2));
+                OnPropertyChanged(nameof(IsValid));
+                if (UpdateStackDimensions) StackHeight_mm = _model.StackHeight_mm;
+            }
         }
         public double SeparatorOffsetX_mm
         {
             get => _model.SeparatorOffsetX_mm;
-            set { _model.SeparatorOffsetX_mm = value;OnPropertyChanged();OnPropertyChanged(nameof(IsValid)); }
+            set
+            {
+                if (value < 0) value = 0;
+                _model.SeparatorOffsetX_mm = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(SeparatorWidth_mm));
+                OnPropertyChanged(nameof(SeparatorArea_cm2));
+                OnPropertyChanged(nameof(IsValid));
+                if (UpdateStackDimensions) StackWidth_mm = _model.StackWidth_mm;
+            }
         }
 
         // ========== FLAGS ==========
         public bool FlagsOnOppositeSides
         {
             get => _model.FlagsOnOppositeSides;
-            set { _model.FlagsOnOppositeSides = value;OnPropertyChanged(); }
+            set
+            {
+                if (_model.FlagsOnOppositeSides != value)
+                {
+                    _model.FlagsOnOppositeSides = value;
+                    if (value) _model.FlagsOnSameSide = false; // Mutual exclusion
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(FlagsOnSameSide));
+                }
+            }
         }
         public bool FlagsOnSameSide
         {
             get => _model.FlagsOnSameSide;
-            set { _model.FlagsOnSameSide = value;OnPropertyChanged(); }
+            set
+            {
+                if (_model.FlagsOnSameSide != value)
+                {
+                    _model.FlagsOnSameSide = value;
+                    if (value) _model.FlagsOnOppositeSides = false; // Mutual exclusion
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(FlagsOnOppositeSides));
+                }
+            }
         }
 
         public double CathodeFlagHeight_mm
         {
             get => _model.CathodeFlagHeight_mm;
-            set { _model.CathodeFlagHeight_mm = value;OnPropertyChanged(); }
+            set
+            {
+                if (value < 0) value = 0;
+                _model.CathodeFlagHeight_mm = value;
+                OnPropertyChanged();
+                ValidateFlagOverlap();
+            }
         }
         public double CathodeFlagWidth_mm
         {
             get => _model.CathodeFlagWidth_mm;
-            set { _model.CathodeFlagWidth_mm = value;OnPropertyChanged(); }
+            set
+            {
+                if (value < 0) value = 0;
+                _model.CathodeFlagWidth_mm = value;
+                OnPropertyChanged();
+                ValidateFlagOverlap();
+            }
         }
         public double CathodeFlagOffsetX_mm
         {
             get => _model.CathodeFlagOffsetX_mm;
-            set { _model.CathodeFlagOffsetX_mm = value;OnPropertyChanged(); }
+            set
+            {
+                if (value < 0) value = 0;
+                _model.CathodeFlagOffsetX_mm = value;
+                OnPropertyChanged();
+                ValidateFlagOverlap();
+            }
         }
 
         public double AnodeFlagHeight_mm
         {
             get => _model.AnodeFlagHeight_mm;
-            set { _model.AnodeFlagHeight_mm = value;OnPropertyChanged(); }
+            set
+            {
+                if (value < 0) value = 0;
+                _model.AnodeFlagHeight_mm = value;
+                OnPropertyChanged();
+                ValidateFlagOverlap();
+            }
         }
         public double AnodeFlagWidth_mm
         {
             get => _model.AnodeFlagWidth_mm;
-            set { _model.AnodeFlagWidth_mm = value;OnPropertyChanged(); }
+            set
+            {
+                if (value < 0) value = 0;
+                _model.AnodeFlagWidth_mm = value;
+                OnPropertyChanged();
+                ValidateFlagOverlap();
+            }
         }
         public double AnodeFlagOffsetX_mm
         {
             get => _model.AnodeFlagOffsetX_mm;
-            set { _model.AnodeFlagOffsetX_mm = value;OnPropertyChanged(); }
+            set
+            {
+                if (value < 0) value = 0;
+                _model.AnodeFlagOffsetX_mm = value;
+                OnPropertyChanged();
+                ValidateFlagOverlap();
+            }
+        }
+
+        // Validate and fix flag overlap when on same side
+        private void ValidateFlagOverlap()
+        {
+            if (!FlagsOnSameSide) return;
+
+            const double minGap = 2.0; // mm
+            double cathodeEnd = CathodeFlagOffsetX_mm + CathodeFlagWidth_mm;
+            double anodeStart = AnodeFlagOffsetX_mm;
+
+            // If anode flag would overlap, shift it to maintain 2mm gap
+            if (anodeStart < cathodeEnd + minGap)
+            {
+                _model.AnodeFlagOffsetX_mm = cathodeEnd + minGap;
+                OnPropertyChanged(nameof(AnodeFlagOffsetX_mm));
+            }
         }
 
         // ========== STACK ==========
         public bool UpdateStackDimensions
         {
             get => _model.UpdateStackDimensions;
-            set { _model.UpdateStackDimensions = value;OnPropertyChanged(); }
+            set
+            {
+                _model.UpdateStackDimensions = value;
+                OnPropertyChanged();
+                if (value)
+                {
+                    // Re-clamp when enabling
+                    StackHeight_mm = _model.StackHeight_mm;
+                    StackWidth_mm = _model.StackWidth_mm;
+                }
+            }
         }
         public double StackHeight_mm
         {
             get => _model.StackHeight_mm;
-            set { _model.StackHeight_mm = value;OnPropertyChanged(); }
+            set
+            {
+                if (UpdateStackDimensions)
+                {
+                    // Clamp between anode and separator
+                    double min = AnodeHeight_mm;
+                    double max = SeparatorHeight_mm;
+                    if (value < min) value = min;
+                    if (value > max) value = max;
+                }
+                _model.StackHeight_mm = value;
+                OnPropertyChanged();
+            }
         }
         public double StackWidth_mm
         {
             get => _model.StackWidth_mm;
-            set { _model.StackWidth_mm = value;OnPropertyChanged(); }
+            set
+            {
+                if (UpdateStackDimensions)
+                {
+                    // Clamp between anode and separator
+                    double min = AnodeWidth_mm;
+                    double max = SeparatorWidth_mm;
+                    if (value < min) value = min;
+                    if (value > max) value = max;
+                }
+                _model.StackWidth_mm = value;
+                OnPropertyChanged();
+            }
         }
 
         // ========== VALIDATION ==========
@@ -454,10 +610,241 @@ OnPropertyChanged(nameof(Error));
             {
                 // Volume in cm³: (height * width * thickness) / 1000
                 double volume_cm3 = (CathodeTabHeight_mm * CathodeTabWidth_mm * CathodeTabThickness_mm) / 1000.0;
-                // Aluminum density: 2.70 g/cm³ 
+                // Aluminum density: 2.70 g/cm³
                 double aluminumDensity = 2.70;
                 return volume_cm3 * aluminumDensity;
             }
+        }
+
+        // ========== PACKAGING / CASE ==========
+
+        // Pouch foil offsets (mm) - drive preview
+        private double _pouchOffsetTop_mm = 18.0;
+        public double PouchOffsetTop_mm
+        {
+            get => _pouchOffsetTop_mm;
+            set
+            {
+                if (value < 0) value = 0;
+                _pouchOffsetTop_mm = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private double _pouchOffsetBottom_mm = 18.0;
+        public double PouchOffsetBottom_mm
+        {
+            get => _pouchOffsetBottom_mm;
+            set
+            {
+                if (value < 0) value = 0;
+                _pouchOffsetBottom_mm = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private double _pouchOffsetLeft_mm = 5.0;
+        public double PouchOffsetLeft_mm
+        {
+            get => _pouchOffsetLeft_mm;
+            set
+            {
+                if (value < 0) value = 0;
+                _pouchOffsetLeft_mm = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private double _pouchOffsetRight_mm = 5.0;
+        public double PouchOffsetRight_mm
+        {
+            get => _pouchOffsetRight_mm;
+            set
+            {
+                if (value < 0) value = 0;
+                _pouchOffsetRight_mm = value;
+                OnPropertyChanged();
+            }
+        }
+
+        // Package Material Properties (TwoWay, editable)
+        private double _packageThicknessSum_um = 13.0;
+        public double PackageThicknessSum_um
+        {
+            get => _packageThicknessSum_um;
+            set
+            {
+                if (value < 0) value = 0;
+                _packageThicknessSum_um = value;
+                OnPropertyChanged();
+                RaiseCaseMassChain();
+            }
+        }
+
+        private double _packageArealWeight_mgcm2 = 0.725;
+        public double PackageArealWeight_mgcm2
+        {
+            get => _packageArealWeight_mgcm2;
+            set
+            {
+                if (value < 0) value = 0;
+                _packageArealWeight_mgcm2 = value;
+                OnPropertyChanged();
+                RaiseCaseMassChain();
+            }
+        }
+
+        private double _packageEffDensity_gcm3 = 500.0;
+        public double PackageEffDensity_gcm3
+        {
+            get => _packageEffDensity_gcm3;
+            set
+            {
+                if (value < 0) value = 0;
+                _packageEffDensity_gcm3 = value;
+                OnPropertyChanged();
+                RaiseCaseMassChain();
+            }
+        }
+
+        private double _packageCost_EURm2 = 0.4;
+        public double PackageCost_EURm2
+        {
+            get => _packageCost_EURm2;
+            set
+            {
+                if (value < 0) value = 0;
+                _packageCost_EURm2 = value;
+                OnPropertyChanged();
+            }
+        }
+
+        // Right-hand notes (editable strings)
+        private string _packageThicknessNote = "CoA xyz";
+        public string PackageThicknessNote
+        {
+            get => _packageThicknessNote;
+            set { _packageThicknessNote = value; OnPropertyChanged(); }
+        }
+
+        private string _packageArealWeightNote = "Measured @CL 10.10.25";
+        public string PackageArealWeightNote
+        {
+            get => _packageArealWeightNote;
+            set { _packageArealWeightNote = value; OnPropertyChanged(); }
+        }
+
+        private string _packageEffDensityNote = "Lit. from xyz";
+        public string PackageEffDensityNote
+        {
+            get => _packageEffDensityNote;
+            set { _packageEffDensityNote = value; OnPropertyChanged(); }
+        }
+
+        private string _packageCostNote = "REC Value from 05.10.25";
+        public string PackageCostNote
+        {
+            get => _packageCostNote;
+            set { _packageCostNote = value; OnPropertyChanged(); }
+        }
+
+        // Cell Dimensions - Calculated (from separator + offsets)
+        private double _calculatedWidth_mm = 100.0;
+        public double CalculatedWidth_mm
+        {
+            get => _calculatedWidth_mm;
+            set
+            {
+                if (value < 0) value = 0;
+                _calculatedWidth_mm = value;
+                OnPropertyChanged();
+                RaiseCaseMassChain();
+            }
+        }
+
+        private double _calculatedHeight_mm = 150.0;
+        public double CalculatedHeight_mm
+        {
+            get => _calculatedHeight_mm;
+            set
+            {
+                if (value < 0) value = 0;
+                _calculatedHeight_mm = value;
+                OnPropertyChanged();
+                RaiseCaseMassChain();
+            }
+        }
+
+        // Cell Dimensions - Measured (user input)
+        private double _measuredWidth_mm = 0.0;
+        public double MeasuredWidth_mm
+        {
+            get => _measuredWidth_mm;
+            set
+            {
+                if (value < 0) value = 0;
+                _measuredWidth_mm = value;
+                OnPropertyChanged();
+                RaiseCaseMassChain();
+            }
+        }
+
+        private double _measuredHeight_mm = 0.0;
+        public double MeasuredHeight_mm
+        {
+            get => _measuredHeight_mm;
+            set
+            {
+                if (value < 0) value = 0;
+                _measuredHeight_mm = value;
+                OnPropertyChanged();
+                RaiseCaseMassChain();
+            }
+        }
+
+        // Toggle for using Calculated vs Measured dimensions
+        private bool _useMeasuredDims = false;
+        public bool UseMeasuredDims
+        {
+            get => _useMeasuredDims;
+            set
+            {
+                _useMeasuredDims = value;
+                OnPropertyChanged();
+                RaiseCaseMassChain();
+            }
+        }
+
+        // Active outer dimensions (based on toggle)
+        public double CaseOuterWidth_mm => UseMeasuredDims ? MeasuredWidth_mm : CalculatedWidth_mm;
+        public double CaseOuterHeight_mm => UseMeasuredDims ? MeasuredHeight_mm : CalculatedHeight_mm;
+
+        // Package area in cm²
+        public double PackageArea_cm2 => Math.Max(0, (CaseOuterWidth_mm * CaseOuterHeight_mm) / 100.0);
+
+        // Computed areal weight from thickness & density (mg/cm²)
+        // thickness[µm] → cm (1 µm = 1e-4 cm)
+        // g/cm³ × cm = g/cm² → mg/cm² (*1000)
+        public double PackageArealWeight_mgcm2_calc =>
+            Math.Max(0, PackageThicknessSum_um * 1e-4 * PackageEffDensity_gcm3 * 1000.0);
+
+        // Effective areal weight: prefer user input if > 0, else computed
+        public double PackageArealWeight_mgcm2_effective =>
+            (PackageArealWeight_mgcm2 > 0.0) ? PackageArealWeight_mgcm2 : PackageArealWeight_mgcm2_calc;
+
+        // Calculated package mass [g]
+        // mg/cm² × cm² = mg → g (/1000)
+        public double PackageMass_g => Math.Max(0, PackageArea_cm2 * PackageArealWeight_mgcm2_effective / 1000.0);
+
+        // Helper to raise all dependent properties for mass calculation
+        private void RaiseCaseMassChain()
+        {
+            OnPropertyChanged(nameof(CaseOuterWidth_mm));
+            OnPropertyChanged(nameof(CaseOuterHeight_mm));
+            OnPropertyChanged(nameof(PackageArea_cm2));
+            OnPropertyChanged(nameof(PackageArealWeight_mgcm2_calc));
+            OnPropertyChanged(nameof(PackageArealWeight_mgcm2_effective));
+            OnPropertyChanged(nameof(PackageMass_g));
         }
     }
 }

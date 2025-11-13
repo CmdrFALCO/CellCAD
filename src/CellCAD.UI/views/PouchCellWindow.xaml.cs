@@ -1,4 +1,5 @@
 using System.Windows;
+using System.Windows.Controls;
 using System.ComponentModel;
 using CellCAD.services;
 using CellCAD.viewmodels;
@@ -11,7 +12,10 @@ namespace CellCAD.views
     {
         private CadSceneHost? _scene;
         private PouchCellViewModel _vm;
-        private ElectrodeSchematicControl? _schematic;
+        private StackConfigurationViewModel _stackVm;
+        private Canvas? _canvasFullLayout;
+        private Canvas? _canvasCornerZoom;
+        private Canvas? _canvasCasePreview;
 
 
         public PouchCellWindow()
@@ -19,27 +23,73 @@ namespace CellCAD.views
             InitializeComponent();
 
             _vm = new PouchCellViewModel(PouchCellParameters.NeutralPreset);
+            _stackVm = new StackConfigurationViewModel();
             DataContext = _vm;
+
+            // Set Stack Configuration panel's DataContext after InitializeComponent
+            // (PanelStackConfig is defined in XAML)
+            Loaded += (s, e) =>
+            {
+                PanelStackConfig.DataContext = _stackVm;
+            };
 
             // Initialize 2D CAD viewport with Canvas
             _scene = new CadSceneHost();
-            ViewportHost.Content = _scene.Canvas;
 
-            // Initialize 2D schematic
-            _schematic = new ElectrodeSchematicControl();
-            SchematicHost.Child = _schematic;
+            // Create canvases for sheet design views
+            _canvasFullLayout = new Canvas { Background = System.Windows.Media.Brushes.White };
+            _canvasCornerZoom = new Canvas { Background = System.Windows.Media.Brushes.White };
+
+            ViewportHost.Content = _canvasFullLayout;
+            SchematicHost.Child = _canvasCornerZoom;
 
             Loaded += (_, __) =>
             {
-                _scene.BuildPouchCell(_vm.Model);
-                _schematic.UpdateSchematic(_vm.Model);
+                RenderSheetViews();
+                RenderCasePreview();
+            };
+
+            SizeChanged += (_, __) =>
+            {
+                RenderSheetViews();
+                RenderCasePreview();
             };
 
             _vm.PropertyChanged += (_, __) =>
             {
-                _scene.BuildPouchCell(_vm.Model);
-                _schematic?.UpdateSchematic(_vm.Model);
+                RenderSheetViews();
+                RenderCasePreview();
             };
+
+            // Wire up CasePreviewCanvas for Packaging -> Case tab
+            Loaded += (_, __) =>
+            {
+                if (CasePreviewCanvas != null)
+                {
+                    _canvasCasePreview = CasePreviewCanvas;
+                    CasePreviewCanvas.SizeChanged += (s, e) => RenderCasePreview();
+                }
+            };
+        }
+
+        private void RenderSheetViews()
+        {
+            if (_canvasFullLayout != null)
+            {
+                SheetRenderer.RenderFullLayout(_canvasFullLayout, _vm);
+            }
+            if (_canvasCornerZoom != null)
+            {
+                SheetRenderer.RenderCornerZoom(_canvasCornerZoom, _vm);
+            }
+        }
+
+        private void RenderCasePreview()
+        {
+            if (_canvasCasePreview != null)
+            {
+                SheetRenderer.DrawPackagingCase(_canvasCasePreview, _vm);
+            }
         }
 
         private void ViewModelOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
