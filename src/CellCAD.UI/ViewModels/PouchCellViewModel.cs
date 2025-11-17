@@ -1589,5 +1589,61 @@ OnPropertyChanged(nameof(Error));
         public string HousingName => "PRIMA FCL";  // From packaging case material name
 
         #endregion
+
+        #region Report - Comp
+
+        // Material name properties for Comp tab headers
+        public string ReportCathodeName => "N00B Gen. 1 Cathode";  // TODO: get from materials DB
+        public string ReportAnodeName => "N00B Gen. 2 Anode";  // TODO: get from materials DB
+        public string ReportElectrolyteName => "CL – E007";  // TODO: get from materials DB
+        public string ReportSeparatorName => "Cellgard xyz";  // TODO: get from materials DB
+
+        // Cathode characteristics
+        public double ReportCathodeLoading_mgcm2 => 18.02;  // TODO: get from materials DB
+        public double ReportCathodeRevSpecCapacity_mAhg => 210.54;  // TODO: get from materials DB
+        public double ReportCathodeC3SpecCapacity_mAhg => 215.11;  // TODO: get from materials DB
+        public double ReportCathodeCoatingThk_0pct_um => 59.11;  // TODO: calculate from loading/density
+        public double ReportCathodeCoatingThk_100pct_um => 58.54;  // TODO: calculate from loading/density
+        public double ReportCathodeCoatingDensity_0pct_gcm3 => 3.451;  // TODO: get from materials DB
+        public double ReportCathodeCoatingDensity_100pct_gcm3 => 3.472;  // TODO: get from materials DB
+
+        // Anode characteristics
+        public double ReportAnodeLoading_mgcm2 => 9.45;  // TODO: get from materials DB
+        public double ReportAnodeRevSpecCapacity_mAhg => 372.15;  // TODO: get from materials DB
+        public double ReportAnodeC3SpecCapacity_mAhg => 365.02;  // TODO: get from materials DB
+        public double ReportAnodeCoatingThk_0pct_um => 62.78;  // TODO: calculate from loading/density
+        public double ReportAnodeCoatingThk_100pct_um => 68.91;  // TODO: calculate from loading/density
+        public double ReportAnodeCoatingDensity_0pct_gcm3 => 1.505;  // TODO: get from materials DB
+        public double ReportAnodeCoatingDensity_100pct_gcm3 => 1.371;  // TODO: get from materials DB
+
+        // Separator characteristics
+        public double ReportSeparatorThickness_um => 12.0;  // TODO: get from materials DB
+        public double ReportSeparatorPorosity_pct => 39.0;  // TODO: get from materials DB
+        public double ReportSeparatorArealWeight_mgcm2 => 0.73;  // TODO: get from materials DB
+
+        // Electrolyte characteristics
+        public double ReportElectrolytePoresAnode_0pctSoC_ml => 142.7;  // TODO: calculate from anode porosity
+        public double ReportElectrolytePoresCathode_0pctSoC_ml => 86.3;  // TODO: calculate from cathode porosity
+        public double ReportElectrolytePoresSeparator_ml => 195.4;  // TODO: calculate from separator porosity
+        public double ReportElectrolyteCalcVolume_ml => 424.4;  // TODO: sum of pore volumes
+        public double ReportElectrolyteUsedVolume_ml => 466.8;  // TODO: calculated volume * excess factor
+        public double ReportElectrolyteExcessFactor => 1.10;  // TODO: get from configuration/DB
+        public double ReportElectrolyteCalcVolumeCapacity_mlAh => 10.61;  // TODO: calc volume / cell capacity
+        public double ReportElectrolyteUsedVolumeCapacity_mlAh => 11.67;  // TODO: used volume / cell capacity
+
+        // Heat capacity characteristics
+        public double ReportHeatCapacityCell_JgK => 0.951;  // TODO: calculate weighted average
+        public double ReportHeatCapacityCathode_JgK => 0.832;  // TODO: get from materials DB
+        public double ReportHeatCapacityAnode_JgK => 1.115;  // TODO: get from materials DB
+        public double ReportHeatCapacityElectrolyte_JgK => 1.850;  // TODO: get from materials DB
+        public double ReportHeatCapacitySeparator_JgK => 1.200;  // TODO: get from materials DB
+        public double ReportHeatCapacityCase_JgK => 0.903;  // TODO: get from materials DB
+
+        // Thermal conductivity characteristics
+        public double ReportThermalCondPosCollectorShareZ_pct => 15.8;  // TODO: calculate from geometry
+        public double ReportThermalCondNegCollectorShareZ_pct => 18.2;  // TODO: calculate from geometry
+        public double ReportThermalCondStackXY_WmK => 0.412;  // TODO: calculate from materials
+
+        #endregion
     }
 }

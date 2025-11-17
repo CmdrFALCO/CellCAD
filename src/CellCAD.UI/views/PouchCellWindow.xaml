@@ -2243,13 +2243,369 @@
                                 </StackPanel>
                             </Grid>
 
-                            <!-- COMP. SUB-TAB (Placeholder) -->
+                            <!-- COMP. SUB-TAB -->
                             <Grid x:Name="SubPanelReportComp" Visibility="{Binding IsChecked, ElementName=SubTabReportComp, Converter={StaticResource BoolToVis}}">
-                                <StackPanel>
-                                    <TextBlock Text="Report / Comp." FontSize="18" FontWeight="Bold" Margin="0,0,0,16"/>
-                                    <TextBlock Text="Comp. tab implementation coming soon..."
-                                               FontStyle="Italic" Foreground="#666" FontSize="14" Margin="0,24,0,0"/>
-                                </StackPanel>
+                                <Border Background="#E8E8E8" Padding="16" CornerRadius="4">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="16"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <!-- LEFT COLUMN: Cathode, Anode, Separator -->
+                                        <StackPanel Grid.Column="0">
+                                            <!-- Cathode Characteristics -->
+                                            <TextBlock Text="Cathode Characteristics" FontSize="16" FontWeight="Bold" Margin="0,0,0,8"/>
+                                            <Border Background="White" BorderBrush="#CCC" BorderThickness="1" Padding="12" Margin="0,0,0,16">
+                                                <Grid>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                    </Grid.RowDefinitions>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="260"/>
+                                                        <ColumnDefinition Width="100"/>
+                                                        <ColumnDefinition Width="80"/>
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <!-- Header: Material Name -->
+                                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Material Name" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                                                    <TextBox Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" Style="{StaticResource CalcTextBox}"
+                                                             Text="{Binding ReportCathodeName, Mode=OneWay}" Margin="4,0,0,4"/>
+
+                                                    <!-- Loading -->
+                                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Loading" VerticalAlignment="Center" Margin="0,4"/>
+                                                    <TextBox Grid.Row="1" Grid.Column="1" Style="{StaticResource CalcTextBox}"
+                                                             Text="{Binding ReportCathodeLoading_mgcm2, Mode=OneWay, StringFormat=F2}" Margin="4"/>
+                                                    <TextBlock Grid.Row="1" Grid.Column="2" Text="[mg/cm²]" VerticalAlignment="Center" Margin="4"/>
+
+                                                    <!-- Rev. specific capacity -->
+                                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Rev. specific capacity" VerticalAlignment="Center" Margin="0,4"/>
+                                                    <TextBox Grid.Row="2" Grid.Column="1" Style="{StaticResource CalcTextBox}"
+                                                             Text="{Binding ReportCathodeRevSpecCapacity_mAhg, Mode=OneWay, StringFormat=F2}" Margin="4"/>
+                                                    <TextBlock Grid.Row="2" Grid.Column="2" Text="[mAh/g]" VerticalAlignment="Center" Margin="4"/>
+
+                                                    <!-- C/3 specific capacity vs. Li -->
+                                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="C/3 specific capacity vs. Li" VerticalAlignment="Center" Margin="0,4"/>
+                                                    <TextBox Grid.Row="3" Grid.Column="1" Style="{StaticResource CalcTextBox}"
+                                                             Text="{Binding ReportCathodeC3SpecCapacity_mAhg, Mode=OneWay, StringFormat=F2}" Margin="4"/>
+                                                    <TextBlock Grid.Row="3" Grid.Column="2" Text="[mAh/g]" VerticalAlignment="Center" Margin="4"/>
+
+                                                    <!-- Coating thickness single (0%) -->
+                                                    <TextBlock Grid.Row="4" Grid.Column="0" Text="Coating thickness single (0%)" VerticalAlignment="Center" Margin="0,4"/>
+                                                    <TextBox Grid.Row="4" Grid.Column="1" Style="{StaticResource CalcTextBox}"
+                                                             Text="{Binding ReportCathodeCoatingThk_0pct_um, Mode=OneWay, StringFormat=F2}" Margin="4"/>
+                                                    <TextBlock Grid.Row="4" Grid.Column="2" Text="[µm]" VerticalAlignment="Center" Margin="4"/>
+
+                                                    <!-- Coating thickness single (100%) -->
+                                                    <TextBlock Grid.Row="5" Grid.Column="0" Text="Coating thickness single (100%)" VerticalAlignment="Center" Margin="0,4"/>
+                                                    <TextBox Grid.Row="5" Grid.Column="1" Style="{StaticResource CalcTextBox}"
+                                                             Text="{Binding ReportCathodeCoatingThk_100pct_um, Mode=OneWay, StringFormat=F2}" Margin="4"/>
+                                                    <TextBlock Grid.Row="5" Grid.Column="2" Text="[µm]" VerticalAlignment="Center" Margin="4"/>
+
+                                                    <!-- Coating density (0%) -->
+                                                    <TextBlock Grid.Row="6" Grid.Column="0" Text="Coating density (0%)" VerticalAlignment="Center" Margin="0,4"/>
+                                                    <TextBox Grid.Row="6" Grid.Column="1" Style="{StaticResource CalcTextBox}"
+                                                             Text="{Binding ReportCathodeCoatingDensity_0pct_gcm3, Mode=OneWay, StringFormat=F3}" Margin="4"/>
+                                                    <TextBlock Grid.Row="6" Grid.Column="2" Text="[g/cm³]" VerticalAlignment="Center" Margin="4"/>
+
+                                                    <!-- Coating density (100%) -->
+                                                    <TextBlock Grid.Row="7" Grid.Column="0" Text="Coating density (100%)" VerticalAlignment="Center" Margin="0,4"/>
+                                                    <TextBox Grid.Row="7" Grid.Column="1" Style="{StaticResource CalcTextBox}"
+                                                             Text="{Binding ReportCathodeCoatingDensity_100pct_gcm3, Mode=OneWay, StringFormat=F3}" Margin="4"/>
+                                                    <TextBlock Grid.Row="7" Grid.Column="2" Text="[g/cm³]" VerticalAlignment="Center" Margin="4"/>
+                                                </Grid>
+                                            </Border>
+
+                                            <!-- Anode Characteristics -->
+                                            <TextBlock Text="Anode Characteristics" FontSize="16" FontWeight="Bold" Margin="0,0,0,8"/>
+                                            <Border Background="White" BorderBrush="#CCC" BorderThickness="1" Padding="12" Margin="0,0,0,16">
+                                                <Grid>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                    </Grid.RowDefinitions>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="260"/>
+                                                        <ColumnDefinition Width="100"/>
+                                                        <ColumnDefinition Width="80"/>
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <!-- Header: Material Name -->
+                                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Material Name" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                                                    <TextBox Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" Style="{StaticResource CalcTextBox}"
+                                                             Text="{Binding ReportAnodeName, Mode=OneWay}" Margin="4,0,0,4"/>
+
+                                                    <!-- Loading -->
+                                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Loading" VerticalAlignment="Center" Margin="0,4"/>
+                                                    <TextBox Grid.Row="1" Grid.Column="1" Style="{StaticResource CalcTextBox}"
+                                                             Text="{Binding ReportAnodeLoading_mgcm2, Mode=OneWay, StringFormat=F2}" Margin="4"/>
+                                                    <TextBlock Grid.Row="1" Grid.Column="2" Text="[mg/cm²]" VerticalAlignment="Center" Margin="4"/>
+
+                                                    <!-- Rev. specific capacity -->
+                                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Rev. specific capacity" VerticalAlignment="Center" Margin="0,4"/>
+                                                    <TextBox Grid.Row="2" Grid.Column="1" Style="{StaticResource CalcTextBox}"
+                                                             Text="{Binding ReportAnodeRevSpecCapacity_mAhg, Mode=OneWay, StringFormat=F2}" Margin="4"/>
+                                                    <TextBlock Grid.Row="2" Grid.Column="2" Text="[mAh/g]" VerticalAlignment="Center" Margin="4"/>
+
+                                                    <!-- C/3 specific capacity vs. Li -->
+                                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="C/3 specific capacity vs. Li" VerticalAlignment="Center" Margin="0,4"/>
+                                                    <TextBox Grid.Row="3" Grid.Column="1" Style="{StaticResource CalcTextBox}"
+                                                             Text="{Binding ReportAnodeC3SpecCapacity_mAhg, Mode=OneWay, StringFormat=F2}" Margin="4"/>
+                                                    <TextBlock Grid.Row="3" Grid.Column="2" Text="[mAh/g]" VerticalAlignment="Center" Margin="4"/>
+
+                                                    <!-- Coating thickness single (0%) -->
+                                                    <TextBlock Grid.Row="4" Grid.Column="0" Text="Coating thickness single (0%)" VerticalAlignment="Center" Margin="0,4"/>
+                                                    <TextBox Grid.Row="4" Grid.Column="1" Style="{StaticResource CalcTextBox}"
+                                                             Text="{Binding ReportAnodeCoatingThk_0pct_um, Mode=OneWay, StringFormat=F2}" Margin="4"/>
+                                                    <TextBlock Grid.Row="4" Grid.Column="2" Text="[µm]" VerticalAlignment="Center" Margin="4"/>
+
+                                                    <!-- Coating thickness single (100%) -->
+                                                    <TextBlock Grid.Row="5" Grid.Column="0" Text="Coating thickness single (100%)" VerticalAlignment="Center" Margin="0,4"/>
+                                                    <TextBox Grid.Row="5" Grid.Column="1" Style="{StaticResource CalcTextBox}"
+                                                             Text="{Binding ReportAnodeCoatingThk_100pct_um, Mode=OneWay, StringFormat=F2}" Margin="4"/>
+                                                    <TextBlock Grid.Row="5" Grid.Column="2" Text="[µm]" VerticalAlignment="Center" Margin="4"/>
+
+                                                    <!-- Coating density (0%) -->
+                                                    <TextBlock Grid.Row="6" Grid.Column="0" Text="Coating density (0%)" VerticalAlignment="Center" Margin="0,4"/>
+                                                    <TextBox Grid.Row="6" Grid.Column="1" Style="{StaticResource CalcTextBox}"
+                                                             Text="{Binding ReportAnodeCoatingDensity_0pct_gcm3, Mode=OneWay, StringFormat=F3}" Margin="4"/>
+                                                    <TextBlock Grid.Row="6" Grid.Column="2" Text="[g/cm³]" VerticalAlignment="Center" Margin="4"/>
+
+                                                    <!-- Coating density (100%) -->
+                                                    <TextBlock Grid.Row="7" Grid.Column="0" Text="Coating density (100%)" VerticalAlignment="Center" Margin="0,4"/>
+                                                    <TextBox Grid.Row="7" Grid.Column="1" Style="{StaticResource CalcTextBox}"
+                                                             Text="{Binding ReportAnodeCoatingDensity_100pct_gcm3, Mode=OneWay, StringFormat=F3}" Margin="4"/>
+                                                    <TextBlock Grid.Row="7" Grid.Column="2" Text="[g/cm³]" VerticalAlignment="Center" Margin="4"/>
+                                                </Grid>
+                                            </Border>
+
+                                            <!-- Separator -->
+                                            <TextBlock Text="Separator" FontSize="16" FontWeight="Bold" Margin="0,0,0,8"/>
+                                            <Border Background="White" BorderBrush="#CCC" BorderThickness="1" Padding="12" Margin="0,0,0,16">
+                                                <Grid>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                    </Grid.RowDefinitions>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="260"/>
+                                                        <ColumnDefinition Width="100"/>
+                                                        <ColumnDefinition Width="80"/>
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <!-- Header: Material Name -->
+                                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Material Name" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                                                    <TextBox Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" Style="{StaticResource CalcTextBox}"
+                                                             Text="{Binding ReportSeparatorName, Mode=OneWay}" Margin="4,0,0,4"/>
+
+                                                    <!-- Thickness -->
+                                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Thickness" VerticalAlignment="Center" Margin="0,4"/>
+                                                    <TextBox Grid.Row="1" Grid.Column="1" Style="{StaticResource CalcTextBox}"
+                                                             Text="{Binding ReportSeparatorThickness_um, Mode=OneWay, StringFormat=F1}" Margin="4"/>
+                                                    <TextBlock Grid.Row="1" Grid.Column="2" Text="[µm]" VerticalAlignment="Center" Margin="4"/>
+
+                                                    <!-- Porosity -->
+                                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Porosity" VerticalAlignment="Center" Margin="0,4"/>
+                                                    <TextBox Grid.Row="2" Grid.Column="1" Style="{StaticResource CalcTextBox}"
+                                                             Text="{Binding ReportSeparatorPorosity_pct, Mode=OneWay, StringFormat=F1}" Margin="4"/>
+                                                    <TextBlock Grid.Row="2" Grid.Column="2" Text="[%]" VerticalAlignment="Center" Margin="4"/>
+
+                                                    <!-- Areal weight -->
+                                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Areal weight" VerticalAlignment="Center" Margin="0,4"/>
+                                                    <TextBox Grid.Row="3" Grid.Column="1" Style="{StaticResource CalcTextBox}"
+                                                             Text="{Binding ReportSeparatorArealWeight_mgcm2, Mode=OneWay, StringFormat=F2}" Margin="4"/>
+                                                    <TextBlock Grid.Row="3" Grid.Column="2" Text="[mg/cm²]" VerticalAlignment="Center" Margin="4"/>
+                                                </Grid>
+                                            </Border>
+                                        </StackPanel>
+
+                                        <!-- RIGHT COLUMN: Electrolyte, Heat Capacity, Thermal Conductivity -->
+                                        <StackPanel Grid.Column="2">
+                                            <!-- Electrolyte -->
+                                            <TextBlock Text="Electrolyte" FontSize="16" FontWeight="Bold" Margin="0,0,0,8"/>
+                                            <Border Background="White" BorderBrush="#CCC" BorderThickness="1" Padding="12" Margin="0,0,0,16">
+                                                <Grid>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                    </Grid.RowDefinitions>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="260"/>
+                                                        <ColumnDefinition Width="100"/>
+                                                        <ColumnDefinition Width="80"/>
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <!-- Header: Material Name -->
+                                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Material Name" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                                                    <TextBox Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" Style="{StaticResource CalcTextBox}"
+                                                             Text="{Binding ReportElectrolyteName, Mode=OneWay}" Margin="4,0,0,4"/>
+
+                                                    <!-- Pores anode (0% SoC) -->
+                                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Pores anode (0% SoC)" VerticalAlignment="Center" Margin="0,4"/>
+                                                    <TextBox Grid.Row="1" Grid.Column="1" Style="{StaticResource CalcTextBox}"
+                                                             Text="{Binding ReportElectrolytePoresAnode_0pctSoC_ml, Mode=OneWay, StringFormat=F1}" Margin="4"/>
+                                                    <TextBlock Grid.Row="1" Grid.Column="2" Text="[ml]" VerticalAlignment="Center" Margin="4"/>
+
+                                                    <!-- Pores cathode (0% SoC) -->
+                                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Pores cathode (0% SoC)" VerticalAlignment="Center" Margin="0,4"/>
+                                                    <TextBox Grid.Row="2" Grid.Column="1" Style="{StaticResource CalcTextBox}"
+                                                             Text="{Binding ReportElectrolytePoresCathode_0pctSoC_ml, Mode=OneWay, StringFormat=F1}" Margin="4"/>
+                                                    <TextBlock Grid.Row="2" Grid.Column="2" Text="[ml]" VerticalAlignment="Center" Margin="4"/>
+
+                                                    <!-- Pores separator -->
+                                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Pores separator" VerticalAlignment="Center" Margin="0,4"/>
+                                                    <TextBox Grid.Row="3" Grid.Column="1" Style="{StaticResource CalcTextBox}"
+                                                             Text="{Binding ReportElectrolytePoresSeparator_ml, Mode=OneWay, StringFormat=F1}" Margin="4"/>
+                                                    <TextBlock Grid.Row="3" Grid.Column="2" Text="[ml]" VerticalAlignment="Center" Margin="4"/>
+
+                                                    <!-- Calculated volume -->
+                                                    <TextBlock Grid.Row="4" Grid.Column="0" Text="Calculated volume" VerticalAlignment="Center" Margin="0,4"/>
+                                                    <TextBox Grid.Row="4" Grid.Column="1" Style="{StaticResource CalcTextBox}"
+                                                             Text="{Binding ReportElectrolyteCalcVolume_ml, Mode=OneWay, StringFormat=F1}" Margin="4"/>
+                                                    <TextBlock Grid.Row="4" Grid.Column="2" Text="[ml]" VerticalAlignment="Center" Margin="4"/>
+
+                                                    <!-- Used volume -->
+                                                    <TextBlock Grid.Row="5" Grid.Column="0" Text="Used volume" VerticalAlignment="Center" Margin="0,4"/>
+                                                    <TextBox Grid.Row="5" Grid.Column="1" Style="{StaticResource CalcTextBox}"
+                                                             Text="{Binding ReportElectrolyteUsedVolume_ml, Mode=OneWay, StringFormat=F1}" Margin="4"/>
+                                                    <TextBlock Grid.Row="5" Grid.Column="2" Text="[ml]" VerticalAlignment="Center" Margin="4"/>
+
+                                                    <!-- Excess factor -->
+                                                    <TextBlock Grid.Row="6" Grid.Column="0" Text="Excess factor" VerticalAlignment="Center" Margin="0,4"/>
+                                                    <TextBox Grid.Row="6" Grid.Column="1" Style="{StaticResource CalcTextBox}"
+                                                             Text="{Binding ReportElectrolyteExcessFactor, Mode=OneWay, StringFormat=F2}" Margin="4"/>
+                                                    <TextBlock Grid.Row="6" Grid.Column="2" Text="[/]" VerticalAlignment="Center" Margin="4"/>
+
+                                                    <!-- Calculated volume / capacity -->
+                                                    <TextBlock Grid.Row="7" Grid.Column="0" Text="Calculated volume / capacity" VerticalAlignment="Center" Margin="0,4"/>
+                                                    <TextBox Grid.Row="7" Grid.Column="1" Style="{StaticResource CalcTextBox}"
+                                                             Text="{Binding ReportElectrolyteCalcVolumeCapacity_mlAh, Mode=OneWay, StringFormat=F2}" Margin="4"/>
+                                                    <TextBlock Grid.Row="7" Grid.Column="2" Text="[ml/Ah]" VerticalAlignment="Center" Margin="4"/>
+
+                                                    <!-- Used volume / capacity -->
+                                                    <TextBlock Grid.Row="8" Grid.Column="0" Text="Used volume / capacity" VerticalAlignment="Center" Margin="0,4"/>
+                                                    <TextBox Grid.Row="8" Grid.Column="1" Style="{StaticResource CalcTextBox}"
+                                                             Text="{Binding ReportElectrolyteUsedVolumeCapacity_mlAh, Mode=OneWay, StringFormat=F2}" Margin="4"/>
+                                                    <TextBlock Grid.Row="8" Grid.Column="2" Text="[ml/Ah]" VerticalAlignment="Center" Margin="4"/>
+                                                </Grid>
+                                            </Border>
+
+                                            <!-- Heat Capacity -->
+                                            <TextBlock Text="Heat Capacity" FontSize="16" FontWeight="Bold" Margin="0,0,0,8"/>
+                                            <Border Background="White" BorderBrush="#CCC" BorderThickness="1" Padding="12" Margin="0,0,0,16">
+                                                <Grid>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                    </Grid.RowDefinitions>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="260"/>
+                                                        <ColumnDefinition Width="100"/>
+                                                        <ColumnDefinition Width="80"/>
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <!-- Cell -->
+                                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Cell" VerticalAlignment="Center" Margin="0,4"/>
+                                                    <TextBox Grid.Row="0" Grid.Column="1" Style="{StaticResource CalcTextBox}"
+                                                             Text="{Binding ReportHeatCapacityCell_JgK, Mode=OneWay, StringFormat=F3}" Margin="4"/>
+                                                    <TextBlock Grid.Row="0" Grid.Column="2" Text="[J/g·K]" VerticalAlignment="Center" Margin="4"/>
+
+                                                    <!-- Cathode -->
+                                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Cathode" VerticalAlignment="Center" Margin="0,4"/>
+                                                    <TextBox Grid.Row="1" Grid.Column="1" Style="{StaticResource CalcTextBox}"
+                                                             Text="{Binding ReportHeatCapacityCathode_JgK, Mode=OneWay, StringFormat=F3}" Margin="4"/>
+                                                    <TextBlock Grid.Row="1" Grid.Column="2" Text="[J/g·K]" VerticalAlignment="Center" Margin="4"/>
+
+                                                    <!-- Anode -->
+                                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Anode" VerticalAlignment="Center" Margin="0,4"/>
+                                                    <TextBox Grid.Row="2" Grid.Column="1" Style="{StaticResource CalcTextBox}"
+                                                             Text="{Binding ReportHeatCapacityAnode_JgK, Mode=OneWay, StringFormat=F3}" Margin="4"/>
+                                                    <TextBlock Grid.Row="2" Grid.Column="2" Text="[J/g·K]" VerticalAlignment="Center" Margin="4"/>
+
+                                                    <!-- Electrolyte -->
+                                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Electrolyte" VerticalAlignment="Center" Margin="0,4"/>
+                                                    <TextBox Grid.Row="3" Grid.Column="1" Style="{StaticResource CalcTextBox}"
+                                                             Text="{Binding ReportHeatCapacityElectrolyte_JgK, Mode=OneWay, StringFormat=F3}" Margin="4"/>
+                                                    <TextBlock Grid.Row="3" Grid.Column="2" Text="[J/g·K]" VerticalAlignment="Center" Margin="4"/>
+
+                                                    <!-- Separator -->
+                                                    <TextBlock Grid.Row="4" Grid.Column="0" Text="Separator" VerticalAlignment="Center" Margin="0,4"/>
+                                                    <TextBox Grid.Row="4" Grid.Column="1" Style="{StaticResource CalcTextBox}"
+                                                             Text="{Binding ReportHeatCapacitySeparator_JgK, Mode=OneWay, StringFormat=F3}" Margin="4"/>
+                                                    <TextBlock Grid.Row="4" Grid.Column="2" Text="[J/g·K]" VerticalAlignment="Center" Margin="4"/>
+
+                                                    <!-- Case -->
+                                                    <TextBlock Grid.Row="5" Grid.Column="0" Text="Case" VerticalAlignment="Center" Margin="0,4"/>
+                                                    <TextBox Grid.Row="5" Grid.Column="1" Style="{StaticResource CalcTextBox}"
+                                                             Text="{Binding ReportHeatCapacityCase_JgK, Mode=OneWay, StringFormat=F3}" Margin="4"/>
+                                                    <TextBlock Grid.Row="5" Grid.Column="2" Text="[J/g·K]" VerticalAlignment="Center" Margin="4"/>
+                                                </Grid>
+                                            </Border>
+
+                                            <!-- Thermal Conductivity -->
+                                            <TextBlock Text="Thermal Conductivity" FontSize="16" FontWeight="Bold" Margin="0,0,0,8"/>
+                                            <Border Background="White" BorderBrush="#CCC" BorderThickness="1" Padding="12" Margin="0,0,0,16">
+                                                <Grid>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                    </Grid.RowDefinitions>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="260"/>
+                                                        <ColumnDefinition Width="100"/>
+                                                        <ColumnDefinition Width="80"/>
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <!-- Pos. collector share in Z -->
+                                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Pos. collector share in Z" VerticalAlignment="Center" Margin="0,4"/>
+                                                    <TextBox Grid.Row="0" Grid.Column="1" Style="{StaticResource CalcTextBox}"
+                                                             Text="{Binding ReportThermalCondPosCollectorShareZ_pct, Mode=OneWay, StringFormat=F1}" Margin="4"/>
+                                                    <TextBlock Grid.Row="0" Grid.Column="2" Text="[%]" VerticalAlignment="Center" Margin="4"/>
+
+                                                    <!-- Neg. collector share in Z -->
+                                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Neg. collector share in Z" VerticalAlignment="Center" Margin="0,4"/>
+                                                    <TextBox Grid.Row="1" Grid.Column="1" Style="{StaticResource CalcTextBox}"
+                                                             Text="{Binding ReportThermalCondNegCollectorShareZ_pct, Mode=OneWay, StringFormat=F1}" Margin="4"/>
+                                                    <TextBlock Grid.Row="1" Grid.Column="2" Text="[%]" VerticalAlignment="Center" Margin="4"/>
+
+                                                    <!-- Stack in X/Y -->
+                                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Stack in X/Y" VerticalAlignment="Center" Margin="0,4"/>
+                                                    <TextBox Grid.Row="2" Grid.Column="1" Style="{StaticResource CalcTextBox}"
+                                                             Text="{Binding ReportThermalCondStackXY_WmK, Mode=OneWay, StringFormat=F3}" Margin="4"/>
+                                                    <TextBlock Grid.Row="2" Grid.Column="2" Text="[W/m·K]" VerticalAlignment="Center" Margin="4"/>
+                                                </Grid>
+                                            </Border>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
                             </Grid>
                         </StackPanel>
                     </Grid>
