@@ -21,8 +21,18 @@ namespace CellCAD.viewmodels
             // Hook up auto-sum for Case composition
             CaseComposition.CollectionChanged += (_, __) => RecalcFromComposition();
 
+            // Hook up auto-sum for Overwrap and InsShell compositions
+            OverwrapComposition.CollectionChanged += (_, __) => RecalcOverwrapFromComposition();
+            InsShellComposition.CollectionChanged += (_, __) => RecalcInsShellFromComposition();
+
+            // Hook up auto-sum for FixingTape composition
+            FixingTapeComposition.CollectionChanged += (_, __) => RecalcFixingTapeFromComposition();
+
             // Populate with sample data (will be replaced by DB load later)
             LoadSampleComposition();
+            LoadSampleOverwrapComposition();
+            LoadSampleInsShellComposition();
+            LoadSampleFixingTapeComposition();
         }
 
         public PouchCellParameters Model
@@ -432,6 +442,8 @@ OnPropertyChanged(nameof(CathodeTabThickness_mm));
 OnPropertyChanged(nameof(CathodeTabOverlap_mm));
 OnPropertyChanged(nameof(CathodeTabMass_g));
 
+OnPropertyChanged(nameof(TotalTabMassPerCell_g));
+
 OnPropertyChanged(nameof(IsValid));
 OnPropertyChanged(nameof(Error));
         }
@@ -511,12 +523,40 @@ OnPropertyChanged(nameof(Error));
 
         // ========== TAB DESIGN PROPERTIES ==========
 
-        // Anode Tab
+        // ========== TAB DESIGN HELPERS ==========
+
+        /// <summary>
+        /// Returns material density in g/cm³ based on material name
+        /// </summary>
+        private static double GetTabMaterialDensity(string material)
+        {
+            if (string.IsNullOrWhiteSpace(material))
+                return 8.0; // generic fallback
+
+            var m = material.Trim();
+            if (m.Contains("Copper", StringComparison.OrdinalIgnoreCase))
+                return 8.96;  // Cu
+
+            if (m.Contains("Al", StringComparison.OrdinalIgnoreCase))
+                return 2.70;  // Al
+
+            // fallback for other metals (e.g., Ni-plated Cu)
+            return 8.0;
+        }
+
+        // ========== ANODE TAB ==========
+
         private string _anodeTabMaterial = "Copper mix";
         public string AnodeTabMaterial
         {
             get => _anodeTabMaterial;
-            set { _anodeTabMaterial = value;OnPropertyChanged();OnPropertyChanged(nameof(AnodeTabMass_g)); }
+            set
+            {
+                _anodeTabMaterial = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(AnodeTabMass_g));
+                OnPropertyChanged(nameof(TotalTabMassPerCell_g));
+            }
         }
 
         private int _anodeTabVersion = 1;
@@ -530,21 +570,39 @@ OnPropertyChanged(nameof(Error));
         public double AnodeTabHeight_mm
         {
             get => _anodeTabHeight_mm;
-            set { _anodeTabHeight_mm = value;OnPropertyChanged();OnPropertyChanged(nameof(AnodeTabMass_g)); }
+            set
+            {
+                _anodeTabHeight_mm = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(AnodeTabMass_g));
+                OnPropertyChanged(nameof(TotalTabMassPerCell_g));
+            }
         }
 
         private double _anodeTabWidth_mm = 65;
         public double AnodeTabWidth_mm
         {
             get => _anodeTabWidth_mm;
-            set { _anodeTabWidth_mm = value;OnPropertyChanged();OnPropertyChanged(nameof(AnodeTabMass_g)); }
+            set
+            {
+                _anodeTabWidth_mm = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(AnodeTabMass_g));
+                OnPropertyChanged(nameof(TotalTabMassPerCell_g));
+            }
         }
 
         private double _anodeTabThickness_mm = 0.3;
         public double AnodeTabThickness_mm
         {
             get => _anodeTabThickness_mm;
-            set { _anodeTabThickness_mm = value;OnPropertyChanged();OnPropertyChanged(nameof(AnodeTabMass_g)); }
+            set
+            {
+                _anodeTabThickness_mm = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(AnodeTabMass_g));
+                OnPropertyChanged(nameof(TotalTabMassPerCell_g));
+            }
         }
 
         private double _anodeTabOverlap_mm = 5;
@@ -554,25 +612,34 @@ OnPropertyChanged(nameof(Error));
             set { _anodeTabOverlap_mm = value;OnPropertyChanged(); }
         }
 
-        // Calculated: Anode tab mass (copper density ≈ 8.96 g/cm³)
+        /// <summary>
+        /// Calculated: Anode tab mass using material-dependent density
+        /// </summary>
         public double AnodeTabMass_g
         {
             get
             {
-                // Volume in cm³: (height * width * thickness) / 1000
-                double volume_cm3 = (AnodeTabHeight_mm * AnodeTabWidth_mm * AnodeTabThickness_mm) / 1000.0;
-                // Copper density: 8.96 g/cm³
-                double copperDensity = 8.96;
-                return volume_cm3 * copperDensity;
+                var density = GetTabMaterialDensity(AnodeTabMaterial);
+                var volume_mm3 = AnodeTabHeight_mm * AnodeTabWidth_mm * AnodeTabThickness_mm;
+                var volume_cm3 = volume_mm3 / 1000.0; // mm³ → cm³
+                var mass_g = volume_cm3 * density;
+                return Math.Max(0.0, mass_g);
             }
         }
 
-        // Cathode Tab
+        // ========== CATHODE TAB ==========
+
         private string _cathodeTabMaterial = "Aluminum";
         public string CathodeTabMaterial
         {
             get => _cathodeTabMaterial;
-            set { _cathodeTabMaterial = value;OnPropertyChanged();OnPropertyChanged(nameof(CathodeTabMass_g)); }
+            set
+            {
+                _cathodeTabMaterial = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(CathodeTabMass_g));
+                OnPropertyChanged(nameof(TotalTabMassPerCell_g));
+            }
         }
 
         private int _cathodeTabVersion = 2;
@@ -586,21 +653,39 @@ OnPropertyChanged(nameof(Error));
         public double CathodeTabHeight_mm
         {
             get => _cathodeTabHeight_mm;
-            set { _cathodeTabHeight_mm = value;OnPropertyChanged();OnPropertyChanged(nameof(CathodeTabMass_g)); }
+            set
+            {
+                _cathodeTabHeight_mm = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(CathodeTabMass_g));
+                OnPropertyChanged(nameof(TotalTabMassPerCell_g));
+            }
         }
 
         private double _cathodeTabWidth_mm = 65;
         public double CathodeTabWidth_mm
         {
             get => _cathodeTabWidth_mm;
-            set { _cathodeTabWidth_mm = value;OnPropertyChanged();OnPropertyChanged(nameof(CathodeTabMass_g)); }
+            set
+            {
+                _cathodeTabWidth_mm = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(CathodeTabMass_g));
+                OnPropertyChanged(nameof(TotalTabMassPerCell_g));
+            }
         }
 
         private double _cathodeTabThickness_mm = 0.5;
         public double CathodeTabThickness_mm
         {
             get => _cathodeTabThickness_mm;
-            set { _cathodeTabThickness_mm = value;OnPropertyChanged();OnPropertyChanged(nameof(CathodeTabMass_g)); }
+            set
+            {
+                _cathodeTabThickness_mm = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(CathodeTabMass_g));
+                OnPropertyChanged(nameof(TotalTabMassPerCell_g));
+            }
         }
 
         private double _cathodeTabOverlap_mm = 5;
@@ -610,18 +695,25 @@ OnPropertyChanged(nameof(Error));
             set { _cathodeTabOverlap_mm = value;OnPropertyChanged(); }
         }
 
-        // Calculated: Cathode tab mass (aluminum density ≈ 2.70 g/cm³)
+        /// <summary>
+        /// Calculated: Cathode tab mass using material-dependent density
+        /// </summary>
         public double CathodeTabMass_g
         {
             get
             {
-                // Volume in cm³: (height * width * thickness) / 1000
-                double volume_cm3 = (CathodeTabHeight_mm * CathodeTabWidth_mm * CathodeTabThickness_mm) / 1000.0;
-                // Aluminum density: 2.70 g/cm³
-                double aluminumDensity = 2.70;
-                return volume_cm3 * aluminumDensity;
+                var density = GetTabMaterialDensity(CathodeTabMaterial);
+                var volume_mm3 = CathodeTabHeight_mm * CathodeTabWidth_mm * CathodeTabThickness_mm;
+                var volume_cm3 = volume_mm3 / 1000.0; // mm³ → cm³
+                var mass_g = volume_cm3 * density;
+                return Math.Max(0.0, mass_g);
             }
         }
+
+        /// <summary>
+        /// Total tab mass per cell (one anode + one cathode tab)
+        /// </summary>
+        public double TotalTabMassPerCell_g => AnodeTabMass_g + CathodeTabMass_g;
 
         // ========== PACKAGING / CASE ==========
 
@@ -943,5 +1035,491 @@ OnPropertyChanged(nameof(Error));
             OnPropertyChanged(nameof(PackageArealWeight_mgcm2_effective));
             OnPropertyChanged(nameof(PackageMass_g));
         }
+
+        #region Additional Foils (Overwrap & Insulation Shell)
+
+        /// <summary>
+        /// Overwrap composition (layers loaded from DB)
+        /// </summary>
+        public ObservableCollection<PackagingLayer> OverwrapComposition { get; } = new();
+
+        /// <summary>
+        /// Insulation Shell composition (layers loaded from DB)
+        /// </summary>
+        public ObservableCollection<PackagingLayer> InsShellComposition { get; } = new();
+
+        /// <summary>
+        /// Material presets for Overwrap dropdown
+        /// </summary>
+        public IReadOnlyList<string> OverwrapMaterialPresets { get; } = new[] { "PET 25µm", "PET 50µm", "Custom" };
+
+        /// <summary>
+        /// Material presets for Insulation Shell dropdown
+        /// </summary>
+        public IReadOnlyList<string> InsShellMaterialPresets { get; } = new[] { "PET 50µm", "PET 75µm", "Custom" };
+
+        /// <summary>
+        /// Recalculate totals from OverwrapComposition
+        /// </summary>
+        private void RecalcOverwrapFromComposition()
+        {
+            if (!AutoSyncFromComposition) return;
+
+            double sumThickness_um = 0.0;
+            double sumTW_um_gcm3 = 0.0;
+            double sumAreal_mgcm2 = 0.0;
+
+            foreach (var L in OverwrapComposition)
+            {
+                sumThickness_um += L.Thickness_um;
+                sumTW_um_gcm3   += L.Thickness_um * L.EffectiveDensity_gcm3;
+                sumAreal_mgcm2  += L.ArealWeight_mgcm2;
+            }
+
+            double effDensity_gcm3 = (sumThickness_um > 0) ? (sumTW_um_gcm3 / sumThickness_um) : 0.0;
+
+            _overwrapThicknessSum_um   = Math.Max(0, sumThickness_um);
+            _overwrapArealWeight_mgcm2 = Math.Max(0, sumAreal_mgcm2);
+            _overwrapEffDensity_gcm3   = Math.Max(0, effDensity_gcm3);
+
+            OnPropertyChanged(nameof(OverwrapThicknessSum_um));
+            OnPropertyChanged(nameof(OverwrapArealWeight_mgcm2));
+            OnPropertyChanged(nameof(OverwrapEffDensity_gcm3));
+        }
+
+        /// <summary>
+        /// Recalculate totals from InsShellComposition
+        /// </summary>
+        private void RecalcInsShellFromComposition()
+        {
+            if (!AutoSyncFromComposition) return;
+
+            double sumThickness_um = 0.0;
+            double sumTW_um_gcm3 = 0.0;
+            double sumAreal_mgcm2 = 0.0;
+
+            foreach (var L in InsShellComposition)
+            {
+                sumThickness_um += L.Thickness_um;
+                sumTW_um_gcm3   += L.Thickness_um * L.EffectiveDensity_gcm3;
+                sumAreal_mgcm2  += L.ArealWeight_mgcm2;
+            }
+
+            double effDensity_gcm3 = (sumThickness_um > 0) ? (sumTW_um_gcm3 / sumThickness_um) : 0.0;
+
+            _insShellThicknessSum_um   = Math.Max(0, sumThickness_um);
+            _insShellArealWeight_mgcm2 = Math.Max(0, sumAreal_mgcm2);
+            _insShellEffDensity_gcm3   = Math.Max(0, effDensity_gcm3);
+
+            OnPropertyChanged(nameof(InsShellThicknessSum_um));
+            OnPropertyChanged(nameof(InsShellArealWeight_mgcm2));
+            OnPropertyChanged(nameof(InsShellEffDensity_gcm3));
+        }
+
+        /// <summary>
+        /// Load sample Overwrap composition data
+        /// </summary>
+        private void LoadSampleOverwrapComposition()
+        {
+            OverwrapComposition.Clear();
+            OverwrapComposition.Add(new PackagingLayer
+            {
+                No = 1,
+                Name = "PET 25µm",
+                Version = "1 – 01.11.25",
+                Thickness_um = 25.0,
+                Porosity_pct = 0.0,
+                Density_gcm3 = 1.38
+            });
+        }
+
+        /// <summary>
+        /// Load sample Insulation Shell composition data
+        /// </summary>
+        private void LoadSampleInsShellComposition()
+        {
+            InsShellComposition.Clear();
+            InsShellComposition.Add(new PackagingLayer
+            {
+                No = 1,
+                Name = "PET 50µm",
+                Version = "1 – 01.11.25",
+                Thickness_um = 50.0,
+                Porosity_pct = 0.0,
+                Density_gcm3 = 1.38
+            });
+        }
+
+        // Overwrap Material Properties
+        private double _overwrapThicknessSum_um = 25.0;
+        public double OverwrapThicknessSum_um
+        {
+            get => _overwrapThicknessSum_um;
+            set
+            {
+                if (value < 0) value = 0;
+                _overwrapThicknessSum_um = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private double _overwrapArealWeight_mgcm2 = 0.345;
+        public double OverwrapArealWeight_mgcm2
+        {
+            get => _overwrapArealWeight_mgcm2;
+            set
+            {
+                if (value < 0) value = 0;
+                _overwrapArealWeight_mgcm2 = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private double _overwrapEffDensity_gcm3 = 1.38;
+        public double OverwrapEffDensity_gcm3
+        {
+            get => _overwrapEffDensity_gcm3;
+            set
+            {
+                if (value < 0) value = 0;
+                _overwrapEffDensity_gcm3 = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private double _overwrapCost_EURm2 = 0.15;
+        public double OverwrapCost_EURm2
+        {
+            get => _overwrapCost_EURm2;
+            set
+            {
+                if (value < 0) value = 0;
+                _overwrapCost_EURm2 = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string _overwrapThicknessNote = "Spec sheet";
+        public string OverwrapThicknessNote
+        {
+            get => _overwrapThicknessNote;
+            set { _overwrapThicknessNote = value; OnPropertyChanged(); }
+        }
+
+        private string _overwrapArealWeightNote = "Calculated";
+        public string OverwrapArealWeightNote
+        {
+            get => _overwrapArealWeightNote;
+            set { _overwrapArealWeightNote = value; OnPropertyChanged(); }
+        }
+
+        private string _overwrapEffDensityNote = "Lit. PET";
+        public string OverwrapEffDensityNote
+        {
+            get => _overwrapEffDensityNote;
+            set { _overwrapEffDensityNote = value; OnPropertyChanged(); }
+        }
+
+        private string _overwrapCostNote = "Supplier quote";
+        public string OverwrapCostNote
+        {
+            get => _overwrapCostNote;
+            set { _overwrapCostNote = value; OnPropertyChanged(); }
+        }
+
+        // Insulation Shell Material Properties
+        private double _insShellThicknessSum_um = 50.0;
+        public double InsShellThicknessSum_um
+        {
+            get => _insShellThicknessSum_um;
+            set
+            {
+                if (value < 0) value = 0;
+                _insShellThicknessSum_um = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private double _insShellArealWeight_mgcm2 = 0.69;
+        public double InsShellArealWeight_mgcm2
+        {
+            get => _insShellArealWeight_mgcm2;
+            set
+            {
+                if (value < 0) value = 0;
+                _insShellArealWeight_mgcm2 = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private double _insShellEffDensity_gcm3 = 1.38;
+        public double InsShellEffDensity_gcm3
+        {
+            get => _insShellEffDensity_gcm3;
+            set
+            {
+                if (value < 0) value = 0;
+                _insShellEffDensity_gcm3 = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private double _insShellCost_EURm2 = 0.25;
+        public double InsShellCost_EURm2
+        {
+            get => _insShellCost_EURm2;
+            set
+            {
+                if (value < 0) value = 0;
+                _insShellCost_EURm2 = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string _insShellThicknessNote = "Spec sheet";
+        public string InsShellThicknessNote
+        {
+            get => _insShellThicknessNote;
+            set { _insShellThicknessNote = value; OnPropertyChanged(); }
+        }
+
+        private string _insShellArealWeightNote = "Calculated";
+        public string InsShellArealWeightNote
+        {
+            get => _insShellArealWeightNote;
+            set { _insShellArealWeightNote = value; OnPropertyChanged(); }
+        }
+
+        private string _insShellEffDensityNote = "Lit. PET";
+        public string InsShellEffDensityNote
+        {
+            get => _insShellEffDensityNote;
+            set { _insShellEffDensityNote = value; OnPropertyChanged(); }
+        }
+
+        private string _insShellCostNote = "Supplier quote";
+        public string InsShellCostNote
+        {
+            get => _insShellCostNote;
+            set { _insShellCostNote = value; OnPropertyChanged(); }
+        }
+
+        #endregion
+
+        #region Fixing Tape
+
+        /// <summary>
+        /// Fixing Tape composition (layers loaded from DB)
+        /// </summary>
+        public ObservableCollection<PackagingLayer> FixingTapeComposition { get; } = new();
+
+        /// <summary>
+        /// Material presets for Fixing Tape dropdown
+        /// </summary>
+        public IReadOnlyList<string> FixingTapeMaterialPresets { get; } = new[] { "PET 50µm", "PET 75µm", "Woven glass tape", "Custom" };
+
+        /// <summary>
+        /// Version presets for Fixing Tape dropdown
+        /// </summary>
+        public IReadOnlyList<string> FixingTapeVersionPresets { get; } = new[] { "1 – 01.10.25", "2 – 15.11.25", "Custom" };
+
+        /// <summary>
+        /// Selected Fixing Tape Material
+        /// </summary>
+        private string _fixingTapeMaterial = "PET 50µm";
+        public string FixingTapeMaterial
+        {
+            get => _fixingTapeMaterial;
+            set { _fixingTapeMaterial = value; OnPropertyChanged(); }
+        }
+
+        /// <summary>
+        /// Selected Fixing Tape Version
+        /// </summary>
+        private string _fixingTapeVersion = "1 – 01.10.25";
+        public string FixingTapeVersion
+        {
+            get => _fixingTapeVersion;
+            set { _fixingTapeVersion = value; OnPropertyChanged(); }
+        }
+
+        /// <summary>
+        /// Recalculate totals from FixingTapeComposition
+        /// </summary>
+        private void RecalcFixingTapeFromComposition()
+        {
+            if (!AutoSyncFromComposition) return;
+
+            double sumThickness_um = 0.0;
+            double sumTW_um_gcm3 = 0.0;
+            double sumAreal_mgcm2 = 0.0;
+
+            foreach (var L in FixingTapeComposition)
+            {
+                sumThickness_um += L.Thickness_um;
+                sumTW_um_gcm3   += L.Thickness_um * L.EffectiveDensity_gcm3;
+                sumAreal_mgcm2  += L.ArealWeight_mgcm2;
+            }
+
+            double effDensity_gcm3 = (sumThickness_um > 0) ? (sumTW_um_gcm3 / sumThickness_um) : 0.0;
+
+            _fixingTapeThicknessSum_um   = Math.Max(0, sumThickness_um);
+            _fixingTapeArealWeight_mgcm2 = Math.Max(0, sumAreal_mgcm2);
+            _fixingTapeEffDensity_gcm3   = Math.Max(0, effDensity_gcm3);
+
+            OnPropertyChanged(nameof(FixingTapeThicknessSum_um));
+            OnPropertyChanged(nameof(FixingTapeArealWeight_mgcm2));
+            OnPropertyChanged(nameof(FixingTapeEffDensity_gcm3));
+        }
+
+        /// <summary>
+        /// Load sample Fixing Tape composition data
+        /// </summary>
+        private void LoadSampleFixingTapeComposition()
+        {
+            FixingTapeComposition.Clear();
+            FixingTapeComposition.Add(new PackagingLayer
+            {
+                No = 1,
+                Name = "PET",
+                Version = "1 – 01.10.25",
+                Thickness_um = 50.0,
+                Porosity_pct = 0.0,
+                Density_gcm3 = 1.38
+            });
+
+            // Wire collection changed
+            FixingTapeComposition.CollectionChanged += (s, e) =>
+            {
+                if (e.OldItems != null)
+                    foreach (PackagingLayer layer in e.OldItems)
+                        layer.PropertyChanged -= OnFixingTapeLayerPropertyChanged;
+
+                if (e.NewItems != null)
+                    foreach (PackagingLayer layer in e.NewItems)
+                        layer.PropertyChanged += OnFixingTapeLayerPropertyChanged;
+
+                RecalcFixingTapeFromComposition();
+            };
+
+            // Wire existing items
+            foreach (var layer in FixingTapeComposition)
+                layer.PropertyChanged += OnFixingTapeLayerPropertyChanged;
+
+            RecalcFixingTapeFromComposition();
+        }
+
+        private void OnFixingTapeLayerPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            RecalcFixingTapeFromComposition();
+        }
+
+        // Fixing Tape Material Properties
+
+        private double _fixingTapeThicknessSum_um = 50.0;
+        public double FixingTapeThicknessSum_um
+        {
+            get => _fixingTapeThicknessSum_um;
+            set
+            {
+                if (value < 0) value = 0;
+                _fixingTapeThicknessSum_um = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private double _fixingTapeArealWeight_mgcm2 = 0.725;
+        public double FixingTapeArealWeight_mgcm2
+        {
+            get => _fixingTapeArealWeight_mgcm2;
+            set
+            {
+                if (value < 0) value = 0;
+                _fixingTapeArealWeight_mgcm2 = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private double _fixingTapeEffDensity_gcm3 = 1.45;
+        public double FixingTapeEffDensity_gcm3
+        {
+            get => _fixingTapeEffDensity_gcm3;
+            set
+            {
+                if (value < 0) value = 0;
+                _fixingTapeEffDensity_gcm3 = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private double _fixingTapeCost_EURm2 = 0.4;
+        public double FixingTapeCost_EURm2
+        {
+            get => _fixingTapeCost_EURm2;
+            set
+            {
+                if (value < 0) value = 0;
+                _fixingTapeCost_EURm2 = value;
+                OnPropertyChanged();
+            }
+        }
+
+        // Fixing Tape Material Properties Notes
+
+        private string _fixingTapeThicknessNote = "CoA xyz";
+        public string FixingTapeThicknessNote
+        {
+            get => _fixingTapeThicknessNote;
+            set { _fixingTapeThicknessNote = value; OnPropertyChanged(); }
+        }
+
+        private string _fixingTapeArealWeightNote = "Measured @CL 10.10.25";
+        public string FixingTapeArealWeightNote
+        {
+            get => _fixingTapeArealWeightNote;
+            set { _fixingTapeArealWeightNote = value; OnPropertyChanged(); }
+        }
+
+        private string _fixingTapeEffDensityNote = "Lit. from xyz";
+        public string FixingTapeEffDensityNote
+        {
+            get => _fixingTapeEffDensityNote;
+            set { _fixingTapeEffDensityNote = value; OnPropertyChanged(); }
+        }
+
+        private string _fixingTapeCostNote = "REC Value from 05.10.25";
+        public string FixingTapeCostNote
+        {
+            get => _fixingTapeCostNote;
+            set { _fixingTapeCostNote = value; OnPropertyChanged(); }
+        }
+
+        // Fixing Tape Geometry
+
+        private double _fixingTapeWidth_mm = 10.0;
+        public double FixingTapeWidth_mm
+        {
+            get => _fixingTapeWidth_mm;
+            set
+            {
+                if (value < 0) value = 0;
+                _fixingTapeWidth_mm = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private double _fixingTapeTotalLength_cm = 40.0;
+        public double FixingTapeTotalLength_cm
+        {
+            get => _fixingTapeTotalLength_cm;
+            set
+            {
+                if (value < 0) value = 0;
+                _fixingTapeTotalLength_cm = value;
+                OnPropertyChanged();
+            }
+        }
+
+        #endregion
     }
 }

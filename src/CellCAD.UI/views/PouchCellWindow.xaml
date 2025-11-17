@@ -1134,6 +1134,8 @@
                                                 <RowDefinition Height="Auto"/>
                                                 <RowDefinition Height="Auto"/>
                                                 <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
                                             </Grid.RowDefinitions>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="250"/>
@@ -1144,10 +1146,10 @@
 
                                             <!-- Header Row -->
                                             <Border Grid.Row="0" Grid.Column="0" Background="#333" Padding="4" BorderBrush="#CCC" BorderThickness="1">
-                                                <TextBlock Text="Parameter" Foreground="White" FontWeight="Bold" VerticalAlignment="Center"/>
+                                                <TextBlock Text="Tab Design" Foreground="White" FontWeight="Bold" VerticalAlignment="Center"/>
                                             </Border>
                                             <Border Grid.Row="0" Grid.Column="1" Background="#333" Padding="4" BorderBrush="#CCC" BorderThickness="1">
-                                                <TextBlock Text="Unit" Foreground="White" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                                <TextBlock Text="" Foreground="White" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                                             </Border>
                                             <Border Grid.Row="0" Grid.Column="2" Background="#333" Padding="4" BorderBrush="#CCC" BorderThickness="1">
                                                 <TextBlock Text="Anode" Foreground="White" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center"/>
@@ -1156,43 +1158,62 @@
                                                 <TextBlock Text="Cathode" Foreground="White" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                                             </Border>
 
-                                            <!-- Material (Read-only from database) -->
+                                            <!-- Tab Material (ComboBox - editable) -->
                                             <Border Grid.Row="1" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
-                                                <TextBlock Text="Material" VerticalAlignment="Center"/>
+                                                <TextBlock Text="Tab Material" VerticalAlignment="Center"/>
                                             </Border>
                                             <Border Grid.Row="1" Grid.Column="1" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
-                                                <TextBlock Text="-" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                                <TextBlock Text="—" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                                             </Border>
                                             <Border Grid.Row="1" Grid.Column="2" Padding="2" BorderBrush="#CCC" BorderThickness="1">
-                                                <TextBox Style="{StaticResource CalcTextBox}"
-                                                         Text="{Binding AnodeTabMaterial, Mode=OneWay}"
-                                                         Margin="4"/>
+                                                <ComboBox Text="{Binding AnodeTabMaterial, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                          IsEditable="True"
+                                                          Background="Black" Foreground="White" FontWeight="Bold" Margin="4">
+                                                    <ComboBoxItem Content="Copper mix"/>
+                                                    <ComboBoxItem Content="Copper foil"/>
+                                                    <ComboBoxItem Content="Aluminum foil"/>
+                                                    <ComboBoxItem Content="Nickel-plated copper"/>
+                                                </ComboBox>
                                             </Border>
                                             <Border Grid.Row="1" Grid.Column="3" Padding="2" BorderBrush="#CCC" BorderThickness="1">
-                                                <TextBox Style="{StaticResource CalcTextBox}"
-                                                         Text="{Binding CathodeTabMaterial, Mode=OneWay}"
-                                                         Margin="4"/>
+                                                <ComboBox Text="{Binding CathodeTabMaterial, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                          IsEditable="True"
+                                                          Background="Black" Foreground="White" FontWeight="Bold" Margin="4">
+                                                    <ComboBoxItem Content="Aluminum"/>
+                                                    <ComboBoxItem Content="Copper mix"/>
+                                                    <ComboBoxItem Content="Copper foil"/>
+                                                    <ComboBoxItem Content="Aluminum foil"/>
+                                                    <ComboBoxItem Content="Nickel-plated copper"/>
+                                                </ComboBox>
                                             </Border>
 
-                                            <!-- Version (Read-only from database) -->
+                                            <!-- Version (ComboBox - editable) -->
                                             <Border Grid.Row="2" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
                                                 <TextBlock Text="Version" VerticalAlignment="Center"/>
                                             </Border>
                                             <Border Grid.Row="2" Grid.Column="1" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
-                                                <TextBlock Text="-" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                                <TextBlock Text="—" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                                             </Border>
                                             <Border Grid.Row="2" Grid.Column="2" Padding="2" BorderBrush="#CCC" BorderThickness="1">
-                                                <TextBox Style="{StaticResource CalcTextBox}"
-                                                         Text="{Binding AnodeTabVersion, Mode=OneWay}"
-                                                         Margin="4"/>
+                                                <ComboBox SelectedValue="{Binding AnodeTabVersion, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                          SelectedValuePath="Tag"
+                                                          Background="Black" Foreground="White" FontWeight="Bold" Margin="4">
+                                                    <ComboBoxItem Content="1 – 01.10.25" Tag="1"/>
+                                                    <ComboBoxItem Content="2 – 15.09.25" Tag="2"/>
+                                                    <ComboBoxItem Content="3 – 20.08.25" Tag="3"/>
+                                                </ComboBox>
                                             </Border>
                                             <Border Grid.Row="2" Grid.Column="3" Padding="2" BorderBrush="#CCC" BorderThickness="1">
-                                                <TextBox Style="{StaticResource CalcTextBox}"
-                                                         Text="{Binding CathodeTabVersion, Mode=OneWay}"
-                                                         Margin="4"/>
+                                                <ComboBox SelectedValue="{Binding CathodeTabVersion, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                          SelectedValuePath="Tag"
+                                                          Background="Black" Foreground="White" FontWeight="Bold" Margin="4">
+                                                    <ComboBoxItem Content="1 – 01.10.25" Tag="1"/>
+                                                    <ComboBoxItem Content="2 – 15.09.25" Tag="2"/>
+                                                    <ComboBoxItem Content="3 – 20.08.25" Tag="3"/>
+                                                </ComboBox>
                                             </Border>
 
-                                            <!-- Height (Read-only from database) -->
+                                            <!-- Height [mm] (Read-only) -->
                                             <Border Grid.Row="3" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
                                                 <TextBlock Text="Height" VerticalAlignment="Center"/>
                                             </Border>
@@ -1210,7 +1231,7 @@
                                                          Margin="4"/>
                                             </Border>
 
-                                            <!-- Width (Read-only from database) -->
+                                            <!-- Width [mm] (Read-only) -->
                                             <Border Grid.Row="4" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
                                                 <TextBlock Text="Width" VerticalAlignment="Center"/>
                                             </Border>
@@ -1228,7 +1249,7 @@
                                                          Margin="4"/>
                                             </Border>
 
-                                            <!-- Thickness (Read-only from database) -->
+                                            <!-- Thickness [mm] (Read-only) -->
                                             <Border Grid.Row="5" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
                                                 <TextBlock Text="Thickness" VerticalAlignment="Center"/>
                                             </Border>
@@ -1246,7 +1267,7 @@
                                                          Margin="4"/>
                                             </Border>
 
-                                            <!-- Overlap distance (Read-only from database) -->
+                                            <!-- Overlap distance with flags [mm] (Read-only) -->
                                             <Border Grid.Row="6" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
                                                 <TextBlock Text="Overlap distance with flags" VerticalAlignment="Center" TextWrapping="Wrap"/>
                                             </Border>
@@ -1263,27 +1284,40 @@
                                                          Text="{Binding CathodeTabOverlap_mm, Mode=OneWay, StringFormat=F1}"
                                                          Margin="4"/>
                                             </Border>
+
+                                            <!-- Calculated Mass [g] (Read-only) -->
+                                            <Border Grid.Row="7" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBlock Text="Calculated Mass" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <Border Grid.Row="7" Grid.Column="1" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBlock Text="[g]" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                            </Border>
+                                            <Border Grid.Row="7" Grid.Column="2" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBox Style="{StaticResource CalcTextBox}"
+                                                         Text="{Binding AnodeTabMass_g, Mode=OneWay, StringFormat=F2}"
+                                                         Margin="4"/>
+                                            </Border>
+                                            <Border Grid.Row="7" Grid.Column="3" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBox Style="{StaticResource CalcTextBox}"
+                                                         Text="{Binding CathodeTabMass_g, Mode=OneWay, StringFormat=F2}"
+                                                         Margin="4"/>
+                                            </Border>
+
+                                            <!-- Total tab mass per cell [g] (Read-only, spans Anode+Cathode columns) -->
+                                            <Border Grid.Row="8" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBlock Text="Total tab mass per cell" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                                            </Border>
+                                            <Border Grid.Row="8" Grid.Column="1" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBlock Text="[g]" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                            </Border>
+                                            <Border Grid.Row="8" Grid.Column="2" Grid.ColumnSpan="2" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBox Style="{StaticResource CalcTextBox}"
+                                                         Text="{Binding TotalTabMassPerCell_g, Mode=OneWay, StringFormat=F2}"
+                                                         HorizontalAlignment="Stretch"
+                                                         Margin="4"/>
+                                            </Border>
                                         </Grid>
                                     </Border>
-
-                                    <!-- Calculated Mass (separate row below table) -->
-                                    <Grid Margin="0,8,0,0">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="250"/>
-                                            <ColumnDefinition Width="80"/>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-
-                                        <TextBlock Grid.Column="0" Text="Calculated Mass" VerticalAlignment="Center" FontWeight="SemiBold" Margin="4"/>
-                                        <TextBlock Grid.Column="1" Text="[g]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
-                                        <TextBox Grid.Column="2" Style="{StaticResource CalcTextBox}"
-                                                 Text="{Binding AnodeTabMass_g, Mode=OneWay, StringFormat=F2}"
-                                                 Margin="4"/>
-                                        <TextBox Grid.Column="3" Style="{StaticResource CalcTextBox}"
-                                                 Text="{Binding CathodeTabMass_g, Mode=OneWay, StringFormat=F2}"
-                                                 Margin="4"/>
-                                    </Grid>
                                 </StackPanel>
                             </Grid>
 
@@ -1291,8 +1325,320 @@
                             <Grid x:Name="SubPanelAddFoils" Visibility="{Binding IsChecked, ElementName=SubTabAddFoils, Converter={StaticResource BoolToVis}}">
                                 <StackPanel>
                                     <TextBlock Text="Packaging / Add. Foils" FontSize="18" FontWeight="Bold" Margin="0,0,0,16"/>
-                                    <TextBlock Text="(Additional foils parameters coming soon...)"
-                                             FontStyle="Italic" Foreground="#666" FontSize="12"/>
+
+                                    <!-- ========== OVERWRAP SECTION ========== -->
+                                    <TextBlock Text="Overwrap" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,12"/>
+
+                                    <!-- Overwrap Material Composition Table -->
+                                    <TextBlock Text="Overwrap Material Composition" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                                    <DataGrid ItemsSource="{Binding OverwrapComposition}"
+                                              IsReadOnly="False"
+                                              CanUserAddRows="False"
+                                              CanUserDeleteRows="False"
+                                              CanUserReorderColumns="False"
+                                              CanUserResizeRows="False"
+                                              CanUserSortColumns="False"
+                                              AutoGenerateColumns="False"
+                                              HeadersVisibility="Column"
+                                              GridLinesVisibility="All"
+                                              BorderBrush="#CCC"
+                                              BorderThickness="1"
+                                              Background="White"
+                                              RowBackground="White"
+                                              AlternatingRowBackground="#F8F8F8"
+                                              Margin="0,0,0,8">
+                                        <DataGrid.ColumnHeaderStyle>
+                                            <Style TargetType="DataGridColumnHeader">
+                                                <Setter Property="Background" Value="#333"/>
+                                                <Setter Property="Foreground" Value="White"/>
+                                                <Setter Property="FontWeight" Value="Bold"/>
+                                                <Setter Property="Padding" Value="8,4"/>
+                                                <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                                                <Setter Property="BorderBrush" Value="#CCC"/>
+                                                <Setter Property="BorderThickness" Value="0,0,1,1"/>
+                                            </Style>
+                                        </DataGrid.ColumnHeaderStyle>
+                                        <DataGrid.CellStyle>
+                                            <Style TargetType="DataGridCell">
+                                                <Setter Property="Padding" Value="4"/>
+                                                <Setter Property="BorderBrush" Value="#CCC"/>
+                                                <Setter Property="BorderThickness" Value="0,0,1,1"/>
+                                            </Style>
+                                        </DataGrid.CellStyle>
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn Header="#" Binding="{Binding No}" Width="40">
+                                                <DataGridTextColumn.ElementStyle>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="HorizontalAlignment" Value="Center"/>
+                                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                                    </Style>
+                                                </DataGridTextColumn.ElementStyle>
+                                            </DataGridTextColumn>
+                                            <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*" MinWidth="120">
+                                                <DataGridTextColumn.ElementStyle>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                                        <Setter Property="Margin" Value="4,0"/>
+                                                    </Style>
+                                                </DataGridTextColumn.ElementStyle>
+                                            </DataGridTextColumn>
+                                            <DataGridComboBoxColumn Header="Version"
+                                                                    SelectedItemBinding="{Binding Version, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                    Width="140">
+                                                <DataGridComboBoxColumn.ElementStyle>
+                                                    <Style TargetType="ComboBox">
+                                                        <Setter Property="ItemsSource" Value="{Binding DataContext.OverwrapMaterialPresets, RelativeSource={RelativeSource AncestorType=DataGrid}}"/>
+                                                        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+                                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                                        <Setter Property="Background" Value="Black"/>
+                                                        <Setter Property="Foreground" Value="White"/>
+                                                    </Style>
+                                                </DataGridComboBoxColumn.ElementStyle>
+                                                <DataGridComboBoxColumn.EditingElementStyle>
+                                                    <Style TargetType="ComboBox">
+                                                        <Setter Property="ItemsSource" Value="{Binding DataContext.OverwrapMaterialPresets, RelativeSource={RelativeSource AncestorType=DataGrid}}"/>
+                                                        <Setter Property="Background" Value="Black"/>
+                                                        <Setter Property="Foreground" Value="White"/>
+                                                    </Style>
+                                                </DataGridComboBoxColumn.EditingElementStyle>
+                                            </DataGridComboBoxColumn>
+                                            <DataGridTextColumn Header="Thickness [µm]" Binding="{Binding Thickness_um, StringFormat=F2}" Width="140">
+                                                <DataGridTextColumn.ElementStyle>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="HorizontalAlignment" Value="Right"/>
+                                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                                        <Setter Property="Margin" Value="0,0,8,0"/>
+                                                    </Style>
+                                                </DataGridTextColumn.ElementStyle>
+                                            </DataGridTextColumn>
+                                            <DataGridTextColumn Header="Porosity [%]" Binding="{Binding Porosity_pct, StringFormat=F2}" Width="120">
+                                                <DataGridTextColumn.ElementStyle>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="HorizontalAlignment" Value="Right"/>
+                                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                                        <Setter Property="Margin" Value="0,0,8,0"/>
+                                                    </Style>
+                                                </DataGridTextColumn.ElementStyle>
+                                            </DataGridTextColumn>
+                                            <DataGridTextColumn Header="Density [g/cm³]" Binding="{Binding Density_gcm3, StringFormat=F4}" Width="140">
+                                                <DataGridTextColumn.ElementStyle>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="HorizontalAlignment" Value="Right"/>
+                                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                                        <Setter Property="Margin" Value="0,0,8,0"/>
+                                                    </Style>
+                                                </DataGridTextColumn.ElementStyle>
+                                            </DataGridTextColumn>
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+
+                                    <!-- Overwrap Material Properties -->
+                                    <TextBlock Text="Overwrap Material Properties" FontSize="14" FontWeight="SemiBold" Margin="0,16,0,8"/>
+                                    <Border Background="#F0F0F0" BorderBrush="#CCC" BorderThickness="1" Padding="12">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="200"/>
+                                                <ColumnDefinition Width="80"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+
+                                            <!-- Thickness (sum) -->
+                                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Thickness (sum)" VerticalAlignment="Center" Margin="4"/>
+                                            <TextBlock Grid.Row="0" Grid.Column="1" Text="[µm]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                            <TextBox Grid.Row="0" Grid.Column="2" Style="{StaticResource CalcTextBox}"
+                                                     Text="{Binding OverwrapThicknessSum_um, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F2}" Margin="4"/>
+                                            <TextBox Grid.Row="0" Grid.Column="3" Style="{StaticResource InputTextBox}"
+                                                     Text="{Binding OverwrapThicknessNote, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="4"/>
+
+                                            <!-- Areal Weight -->
+                                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Areal Weight" VerticalAlignment="Center" Margin="4"/>
+                                            <TextBlock Grid.Row="1" Grid.Column="1" Text="[mg/cm²]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                            <TextBox Grid.Row="1" Grid.Column="2" Style="{StaticResource CalcTextBox}"
+                                                     Text="{Binding OverwrapArealWeight_mgcm2, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F3}" Margin="4"/>
+                                            <TextBox Grid.Row="1" Grid.Column="3" Style="{StaticResource InputTextBox}"
+                                                     Text="{Binding OverwrapArealWeightNote, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="4"/>
+
+                                            <!-- Effective Density -->
+                                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Effective Density" VerticalAlignment="Center" Margin="4"/>
+                                            <TextBlock Grid.Row="2" Grid.Column="1" Text="[g/cm³]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                            <TextBox Grid.Row="2" Grid.Column="2" Style="{StaticResource CalcTextBox}"
+                                                     Text="{Binding OverwrapEffDensity_gcm3, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F4}" Margin="4"/>
+                                            <TextBox Grid.Row="2" Grid.Column="3" Style="{StaticResource InputTextBox}"
+                                                     Text="{Binding OverwrapEffDensityNote, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="4"/>
+
+                                            <!-- Cost -->
+                                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Cost" VerticalAlignment="Center" Margin="4"/>
+                                            <TextBlock Grid.Row="3" Grid.Column="1" Text="[€/m²]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                            <TextBox Grid.Row="3" Grid.Column="2" Style="{StaticResource InputTextBox}"
+                                                     Text="{Binding OverwrapCost_EURm2, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F2}" Margin="4"/>
+                                            <TextBox Grid.Row="3" Grid.Column="3" Style="{StaticResource InputTextBox}"
+                                                     Text="{Binding OverwrapCostNote, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="4"/>
+                                        </Grid>
+                                    </Border>
+
+                                    <!-- ========== INSULATION SHELL SECTION ========== -->
+                                    <TextBlock Text="Insulation Shell" FontSize="16" FontWeight="SemiBold" Margin="0,32,0,12"/>
+
+                                    <!-- Insulation Shell Material Composition Table -->
+                                    <TextBlock Text="Insulation Shell Material Composition" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                                    <DataGrid ItemsSource="{Binding InsShellComposition}"
+                                              IsReadOnly="False"
+                                              CanUserAddRows="False"
+                                              CanUserDeleteRows="False"
+                                              CanUserReorderColumns="False"
+                                              CanUserResizeRows="False"
+                                              CanUserSortColumns="False"
+                                              AutoGenerateColumns="False"
+                                              HeadersVisibility="Column"
+                                              GridLinesVisibility="All"
+                                              BorderBrush="#CCC"
+                                              BorderThickness="1"
+                                              Background="White"
+                                              RowBackground="White"
+                                              AlternatingRowBackground="#F8F8F8"
+                                              Margin="0,0,0,8">
+                                        <DataGrid.ColumnHeaderStyle>
+                                            <Style TargetType="DataGridColumnHeader">
+                                                <Setter Property="Background" Value="#333"/>
+                                                <Setter Property="Foreground" Value="White"/>
+                                                <Setter Property="FontWeight" Value="Bold"/>
+                                                <Setter Property="Padding" Value="8,4"/>
+                                                <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                                                <Setter Property="BorderBrush" Value="#CCC"/>
+                                                <Setter Property="BorderThickness" Value="0,0,1,1"/>
+                                            </Style>
+                                        </DataGrid.ColumnHeaderStyle>
+                                        <DataGrid.CellStyle>
+                                            <Style TargetType="DataGridCell">
+                                                <Setter Property="Padding" Value="4"/>
+                                                <Setter Property="BorderBrush" Value="#CCC"/>
+                                                <Setter Property="BorderThickness" Value="0,0,1,1"/>
+                                            </Style>
+                                        </DataGrid.CellStyle>
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn Header="#" Binding="{Binding No}" Width="40">
+                                                <DataGridTextColumn.ElementStyle>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="HorizontalAlignment" Value="Center"/>
+                                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                                    </Style>
+                                                </DataGridTextColumn.ElementStyle>
+                                            </DataGridTextColumn>
+                                            <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*" MinWidth="120">
+                                                <DataGridTextColumn.ElementStyle>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                                        <Setter Property="Margin" Value="4,0"/>
+                                                    </Style>
+                                                </DataGridTextColumn.ElementStyle>
+                                            </DataGridTextColumn>
+                                            <DataGridComboBoxColumn Header="Version"
+                                                                    SelectedItemBinding="{Binding Version, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                    Width="140">
+                                                <DataGridComboBoxColumn.ElementStyle>
+                                                    <Style TargetType="ComboBox">
+                                                        <Setter Property="ItemsSource" Value="{Binding DataContext.InsShellMaterialPresets, RelativeSource={RelativeSource AncestorType=DataGrid}}"/>
+                                                        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+                                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                                        <Setter Property="Background" Value="Black"/>
+                                                        <Setter Property="Foreground" Value="White"/>
+                                                    </Style>
+                                                </DataGridComboBoxColumn.ElementStyle>
+                                                <DataGridComboBoxColumn.EditingElementStyle>
+                                                    <Style TargetType="ComboBox">
+                                                        <Setter Property="ItemsSource" Value="{Binding DataContext.InsShellMaterialPresets, RelativeSource={RelativeSource AncestorType=DataGrid}}"/>
+                                                        <Setter Property="Background" Value="Black"/>
+                                                        <Setter Property="Foreground" Value="White"/>
+                                                    </Style>
+                                                </DataGridComboBoxColumn.EditingElementStyle>
+                                            </DataGridComboBoxColumn>
+                                            <DataGridTextColumn Header="Thickness [µm]" Binding="{Binding Thickness_um, StringFormat=F2}" Width="140">
+                                                <DataGridTextColumn.ElementStyle>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="HorizontalAlignment" Value="Right"/>
+                                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                                        <Setter Property="Margin" Value="0,0,8,0"/>
+                                                    </Style>
+                                                </DataGridTextColumn.ElementStyle>
+                                            </DataGridTextColumn>
+                                            <DataGridTextColumn Header="Porosity [%]" Binding="{Binding Porosity_pct, StringFormat=F2}" Width="120">
+                                                <DataGridTextColumn.ElementStyle>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="HorizontalAlignment" Value="Right"/>
+                                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                                        <Setter Property="Margin" Value="0,0,8,0"/>
+                                                    </Style>
+                                                </DataGridTextColumn.ElementStyle>
+                                            </DataGridTextColumn>
+                                            <DataGridTextColumn Header="Density [g/cm³]" Binding="{Binding Density_gcm3, StringFormat=F4}" Width="140">
+                                                <DataGridTextColumn.ElementStyle>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="HorizontalAlignment" Value="Right"/>
+                                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                                        <Setter Property="Margin" Value="0,0,8,0"/>
+                                                    </Style>
+                                                </DataGridTextColumn.ElementStyle>
+                                            </DataGridTextColumn>
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+
+                                    <!-- Insulation Shell Material Properties -->
+                                    <TextBlock Text="Insulation Shell Material Properties" FontSize="14" FontWeight="SemiBold" Margin="0,16,0,8"/>
+                                    <Border Background="#F0F0F0" BorderBrush="#CCC" BorderThickness="1" Padding="12">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="200"/>
+                                                <ColumnDefinition Width="80"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+
+                                            <!-- Thickness (sum) -->
+                                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Thickness (sum)" VerticalAlignment="Center" Margin="4"/>
+                                            <TextBlock Grid.Row="0" Grid.Column="1" Text="[µm]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                            <TextBox Grid.Row="0" Grid.Column="2" Style="{StaticResource CalcTextBox}"
+                                                     Text="{Binding InsShellThicknessSum_um, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F2}" Margin="4"/>
+                                            <TextBox Grid.Row="0" Grid.Column="3" Style="{StaticResource InputTextBox}"
+                                                     Text="{Binding InsShellThicknessNote, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="4"/>
+
+                                            <!-- Areal Weight -->
+                                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Areal Weight" VerticalAlignment="Center" Margin="4"/>
+                                            <TextBlock Grid.Row="1" Grid.Column="1" Text="[mg/cm²]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                            <TextBox Grid.Row="1" Grid.Column="2" Style="{StaticResource CalcTextBox}"
+                                                     Text="{Binding InsShellArealWeight_mgcm2, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F3}" Margin="4"/>
+                                            <TextBox Grid.Row="1" Grid.Column="3" Style="{StaticResource InputTextBox}"
+                                                     Text="{Binding InsShellArealWeightNote, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="4"/>
+
+                                            <!-- Effective Density -->
+                                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Effective Density" VerticalAlignment="Center" Margin="4"/>
+                                            <TextBlock Grid.Row="2" Grid.Column="1" Text="[g/cm³]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                            <TextBox Grid.Row="2" Grid.Column="2" Style="{StaticResource CalcTextBox}"
+                                                     Text="{Binding InsShellEffDensity_gcm3, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F4}" Margin="4"/>
+                                            <TextBox Grid.Row="2" Grid.Column="3" Style="{StaticResource InputTextBox}"
+                                                     Text="{Binding InsShellEffDensityNote, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="4"/>
+
+                                            <!-- Cost -->
+                                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Cost" VerticalAlignment="Center" Margin="4"/>
+                                            <TextBlock Grid.Row="3" Grid.Column="1" Text="[€/m²]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                            <TextBox Grid.Row="3" Grid.Column="2" Style="{StaticResource InputTextBox}"
+                                                     Text="{Binding InsShellCost_EURm2, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F2}" Margin="4"/>
+                                            <TextBox Grid.Row="3" Grid.Column="3" Style="{StaticResource InputTextBox}"
+                                                     Text="{Binding InsShellCostNote, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="4"/>
+                                        </Grid>
+                                    </Border>
                                 </StackPanel>
                             </Grid>
 
@@ -1306,8 +1652,214 @@
                             <Grid x:Name="SubPanelFixingTape" Visibility="{Binding IsChecked, ElementName=SubTabFixingTape, Converter={StaticResource BoolToVis}}">
                                 <StackPanel>
                                     <TextBlock Text="Packaging / Fixing Tape" FontSize="18" FontWeight="Bold" Margin="0,0,0,16"/>
-                                    <TextBlock Text="(Fixing Tape parameters coming soon...)" 
-                                             FontStyle="Italic" Foreground="#666" FontSize="12"/>
+
+                                    <!-- Material and Version Selection Row -->
+                                    <Grid Margin="0,0,0,16">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="250"/>
+                                            <ColumnDefinition Width="20"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="200"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <TextBlock Grid.Column="0" Text="Fixing Tape Material" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                                        <ComboBox Grid.Column="1"
+                                                  ItemsSource="{Binding FixingTapeMaterialPresets}"
+                                                  SelectedItem="{Binding FixingTapeMaterial, Mode=TwoWay}"
+                                                  Background="Black" Foreground="White"
+                                                  VerticalAlignment="Center"/>
+
+                                        <TextBlock Grid.Column="3" Text="Version" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                                        <ComboBox Grid.Column="4"
+                                                  ItemsSource="{Binding FixingTapeVersionPresets}"
+                                                  SelectedItem="{Binding FixingTapeVersion, Mode=TwoWay}"
+                                                  Background="Black" Foreground="White"
+                                                  VerticalAlignment="Center"/>
+                                    </Grid>
+
+                                    <!-- Fixing Tape Material Composition Table -->
+                                    <TextBlock Text="Fixing Tape Material Composition" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                                    <DataGrid ItemsSource="{Binding FixingTapeComposition}"
+                                              IsReadOnly="False"
+                                              CanUserAddRows="False"
+                                              CanUserDeleteRows="False"
+                                              CanUserReorderColumns="False"
+                                              CanUserResizeRows="False"
+                                              CanUserSortColumns="False"
+                                              AutoGenerateColumns="False"
+                                              HeadersVisibility="Column"
+                                              GridLinesVisibility="All"
+                                              BorderBrush="#CCC"
+                                              BorderThickness="1"
+                                              Background="White"
+                                              RowBackground="White"
+                                              AlternatingRowBackground="#F8F8F8"
+                                              Margin="0,0,0,8">
+                                        <DataGrid.ColumnHeaderStyle>
+                                            <Style TargetType="DataGridColumnHeader">
+                                                <Setter Property="Background" Value="#333"/>
+                                                <Setter Property="Foreground" Value="White"/>
+                                                <Setter Property="FontWeight" Value="Bold"/>
+                                                <Setter Property="Padding" Value="8,4"/>
+                                                <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                                                <Setter Property="BorderBrush" Value="#CCC"/>
+                                                <Setter Property="BorderThickness" Value="0,0,1,1"/>
+                                            </Style>
+                                        </DataGrid.ColumnHeaderStyle>
+                                        <DataGrid.CellStyle>
+                                            <Style TargetType="DataGridCell">
+                                                <Setter Property="Padding" Value="4"/>
+                                                <Setter Property="BorderBrush" Value="#CCC"/>
+                                                <Setter Property="BorderThickness" Value="0,0,1,1"/>
+                                            </Style>
+                                        </DataGrid.CellStyle>
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn Header="#" Binding="{Binding No}" Width="40">
+                                                <DataGridTextColumn.ElementStyle>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="HorizontalAlignment" Value="Center"/>
+                                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                                    </Style>
+                                                </DataGridTextColumn.ElementStyle>
+                                            </DataGridTextColumn>
+                                            <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*" MinWidth="120">
+                                                <DataGridTextColumn.ElementStyle>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                                        <Setter Property="Margin" Value="4,0"/>
+                                                    </Style>
+                                                </DataGridTextColumn.ElementStyle>
+                                            </DataGridTextColumn>
+                                            <DataGridComboBoxColumn Header="Version"
+                                                                    SelectedItemBinding="{Binding Version, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                    Width="140">
+                                                <DataGridComboBoxColumn.ElementStyle>
+                                                    <Style TargetType="ComboBox">
+                                                        <Setter Property="ItemsSource" Value="{Binding DataContext.FixingTapeVersionPresets, RelativeSource={RelativeSource AncestorType=DataGrid}}"/>
+                                                        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+                                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                                        <Setter Property="Background" Value="Black"/>
+                                                        <Setter Property="Foreground" Value="White"/>
+                                                    </Style>
+                                                </DataGridComboBoxColumn.ElementStyle>
+                                                <DataGridComboBoxColumn.EditingElementStyle>
+                                                    <Style TargetType="ComboBox">
+                                                        <Setter Property="ItemsSource" Value="{Binding DataContext.FixingTapeVersionPresets, RelativeSource={RelativeSource AncestorType=DataGrid}}"/>
+                                                        <Setter Property="Background" Value="Black"/>
+                                                        <Setter Property="Foreground" Value="White"/>
+                                                    </Style>
+                                                </DataGridComboBoxColumn.EditingElementStyle>
+                                            </DataGridComboBoxColumn>
+                                            <DataGridTextColumn Header="Thickness [µm]" Binding="{Binding Thickness_um, StringFormat=F2}" Width="140">
+                                                <DataGridTextColumn.ElementStyle>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="HorizontalAlignment" Value="Right"/>
+                                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                                        <Setter Property="Margin" Value="0,0,8,0"/>
+                                                    </Style>
+                                                </DataGridTextColumn.ElementStyle>
+                                            </DataGridTextColumn>
+                                            <DataGridTextColumn Header="Porosity [%]" Binding="{Binding Porosity_pct, StringFormat=F2}" Width="120">
+                                                <DataGridTextColumn.ElementStyle>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="HorizontalAlignment" Value="Right"/>
+                                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                                        <Setter Property="Margin" Value="0,0,8,0"/>
+                                                    </Style>
+                                                </DataGridTextColumn.ElementStyle>
+                                            </DataGridTextColumn>
+                                            <DataGridTextColumn Header="Density [g/cm³]" Binding="{Binding Density_gcm3, StringFormat=F4}" Width="140">
+                                                <DataGridTextColumn.ElementStyle>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="HorizontalAlignment" Value="Right"/>
+                                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                                        <Setter Property="Margin" Value="0,0,8,0"/>
+                                                    </Style>
+                                                </DataGridTextColumn.ElementStyle>
+                                            </DataGridTextColumn>
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+
+                                    <!-- Fixing Tape Material Properties -->
+                                    <TextBlock Text="Fixing Tape Material Properties" FontSize="14" FontWeight="SemiBold" Margin="0,16,0,8"/>
+                                    <Border Background="#F0F0F0" BorderBrush="#CCC" BorderThickness="1" Padding="12">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="200"/>
+                                                <ColumnDefinition Width="80"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+
+                                            <!-- Thickness (sum) -->
+                                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Thickness (sum)" VerticalAlignment="Center" Margin="4"/>
+                                            <TextBlock Grid.Row="0" Grid.Column="1" Text="[µm]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                            <TextBox Grid.Row="0" Grid.Column="2" Style="{StaticResource InputTextBox}"
+                                                     Text="{Binding FixingTapeThicknessSum_um, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F2}" Margin="4"/>
+                                            <TextBox Grid.Row="0" Grid.Column="3" Style="{StaticResource InputTextBox}"
+                                                     Text="{Binding FixingTapeThicknessNote, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="4"/>
+
+                                            <!-- Areal Weight -->
+                                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Areal Weight" VerticalAlignment="Center" Margin="4"/>
+                                            <TextBlock Grid.Row="1" Grid.Column="1" Text="[mg/cm²]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                            <TextBox Grid.Row="1" Grid.Column="2" Style="{StaticResource CalcTextBox}"
+                                                     Text="{Binding FixingTapeArealWeight_mgcm2, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F3}" Margin="4"/>
+                                            <TextBox Grid.Row="1" Grid.Column="3" Style="{StaticResource InputTextBox}"
+                                                     Text="{Binding FixingTapeArealWeightNote, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="4"/>
+
+                                            <!-- Effective Density -->
+                                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Effective Density" VerticalAlignment="Center" Margin="4"/>
+                                            <TextBlock Grid.Row="2" Grid.Column="1" Text="[g/cm³]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                            <TextBox Grid.Row="2" Grid.Column="2" Style="{StaticResource CalcTextBox}"
+                                                     Text="{Binding FixingTapeEffDensity_gcm3, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F4}" Margin="4"/>
+                                            <TextBox Grid.Row="2" Grid.Column="3" Style="{StaticResource InputTextBox}"
+                                                     Text="{Binding FixingTapeEffDensityNote, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="4"/>
+
+                                            <!-- Cost -->
+                                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Cost" VerticalAlignment="Center" Margin="4"/>
+                                            <TextBlock Grid.Row="3" Grid.Column="1" Text="[€/m²]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                            <TextBox Grid.Row="3" Grid.Column="2" Style="{StaticResource CalcTextBox}"
+                                                     Text="{Binding FixingTapeCost_EURm2, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F2}" Margin="4"/>
+                                            <TextBox Grid.Row="3" Grid.Column="3" Style="{StaticResource InputTextBox}"
+                                                     Text="{Binding FixingTapeCostNote, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="4"/>
+                                        </Grid>
+                                    </Border>
+
+                                    <!-- Fixing Tape Geometry -->
+                                    <TextBlock Text="Fixing Tape Geometry" FontSize="14" FontWeight="SemiBold" Margin="0,24,0,8"/>
+                                    <Border Background="#F0F0F0" BorderBrush="#CCC" BorderThickness="1" Padding="12">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="200"/>
+                                                <ColumnDefinition Width="80"/>
+                                                <ColumnDefinition Width="150"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+
+                                            <!-- Tape width -->
+                                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Tape width" VerticalAlignment="Center" Margin="4"/>
+                                            <TextBlock Grid.Row="0" Grid.Column="1" Text="[mm]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                            <TextBox Grid.Row="0" Grid.Column="2" Style="{StaticResource InputTextBox}"
+                                                     Text="{Binding FixingTapeWidth_mm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F1}" Margin="4"/>
+
+                                            <!-- Total tape length -->
+                                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Total tape length" VerticalAlignment="Center" Margin="4"/>
+                                            <TextBlock Grid.Row="1" Grid.Column="1" Text="[cm]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                            <TextBox Grid.Row="1" Grid.Column="2" Style="{StaticResource InputTextBox}"
+                                                     Text="{Binding FixingTapeTotalLength_cm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F1}" Margin="4"/>
+                                        </Grid>
+                                    </Border>
+
                                 </StackPanel>
                             </Grid>
                         </StackPanel>
