@@ -1521,5 +1521,73 @@ OnPropertyChanged(nameof(Error));
         }
 
         #endregion
+
+        #region Report - Core
+
+        // TODO: replace all Report values with real DB-backed calculations once materials database is available.
+
+        // Energy density properties
+        public double GravEnergyDensity_Whkg => 380.0;  // TODO: calculate from cell mass and energy
+        public double VolEnergyDensity_Cell_Whl => 970.5;  // TODO: calculate from cell volume and energy
+        public double VolEnergyDensity_Stack_Whl => 930.2;  // TODO: calculate from stack volume and energy
+        public double VolEnergyDensity_ECU_Whl => 1050.0;  // TODO: calculate from ECU volume and energy
+
+        // Volume properties
+        public double Volume_ECU_cm3 => 433.1;  // TODO: calculate from ECU dimensions
+        public double Volume_Stack_cm3 => 468.4;  // TODO: calculate from stack dimensions
+        public double Volume_CellBox_cm3 => 480.6;  // TODO: calculate from cell box dimensions (Height * Width * Thickness)
+
+        // Construction efficiency properties
+        public double Efficiency_Stack_pct => 86.65;  // TODO: calculate stack efficiency
+        public double Efficiency_ECU_pct => 80.03;  // TODO: calculate ECU efficiency
+
+        // Electrical characteristics properties
+        public double CellCapacity_Ah => 9.348;  // TODO: calculate from cathode active material and chemistry
+        public double CellEnergy_Wh => 34588.0;  // TODO: calculate from capacity * nominal voltage
+        public double NominalVoltage_V => 3.70;  // TODO: get from chemistry database
+        public double AverageOverpotential_mV => 60.2;  // TODO: calculate from chemistry/stack config
+        public double ArealCapacity_mAhcm2 => 3.674;  // TODO: calculate from capacity / active area
+        public double ArealEnergy_mWhcm2 => 13592.0;  // TODO: calculate from areal capacity * voltage
+        public double Umin_V => 2.50;  // TODO: get from chemistry database
+        public double Umax_V => 4.25;  // TODO: get from chemistry database
+
+        // Number of sheets (placeholders - TODO: expose from StackConfigurationViewModel)
+        public int CathodeSheets_Cell => 100;  // TODO: get from StackConfigurationViewModel
+        public int AnodeSheets_Cell => 102;  // TODO: get from StackConfigurationViewModel
+        public int AllElectrodeSheets_Cell => 202;  // TODO: get from StackConfigurationViewModel
+        public int SeparatorSheets_Cell => 204;  // TODO: get from StackConfigurationViewModel
+
+        // Cell dimensions properties (using existing geometry where possible)
+        public double CellHeight_mm => CalculatedHeight_mm;  // From Packaging → Case
+        public double CellWidth_mm => CalculatedWidth_mm;  // From Packaging → Case
+        public double CellThickness_Dry_mm => 13.54;  // TODO: calculate from stack dry thickness + case
+        public double CellThickness_SoC0_mm => 14.77;  // TODO: calculate with 0% SoC swelling
+        public double CellThickness_SoC100_mm => 15.16;  // TODO: calculate with 100% SoC swelling
+        public double FormationSwelling_pct => 9.11;  // TODO: get from chemistry/materials
+        public double SoCBreathing_pct => 2.61;  // TODO: calculate from SoC0 to SoC100 thickness change
+
+        // Areal characteristics (calculated from existing Sheet Design areas)
+        // TODO: multiply by actual sheet counts from StackConfigurationViewModel when exposed
+        public double CathodeActiveArea_m2 => CathodeArea_cm2 * 100 / 10000.0;  // Assumes 100 cathode sheets
+        public double AnodeActiveArea_m2 => AnodeArea_cm2 * 102 / 10000.0;  // Assumes 102 anode sheets
+        public double SeparatorArea_m2 => SeparatorArea_cm2 * 204 / 10000.0;  // Assumes 204 separator sheets
+
+        // Mass summary properties
+        public double CellMass_g => 1250.1;  // TODO: sum of all component masses
+        public double CathodeMass_g => 620.5;  // TODO: calculate from cathode material density * volume
+        public double AnodeMass_g => 330.2;  // TODO: calculate from anode material density * volume
+        public double ElectrolyteMass_g => 180.2;  // TODO: calculate from electrolyte volume/porosity
+        public double SeparatorMass_g => 40.6;  // TODO: calculate from separator material * area
+        public double HousingMass_g => 20.1;  // TODO: calculate from packaging materials
+
+        // Material name properties (placeholders)
+        public string CellNameReport => "PRIMA FCL";  // From cell name
+        public string CathodeMaterialName => "N00B Gen. 1 Cathode";  // TODO: get from materials DB
+        public string AnodeMaterialName => "N00B Gen. 2 Anode";  // TODO: get from materials DB
+        public string ElectrolyteName => "CL – E007";  // TODO: get from materials DB
+        public string SeparatorName => "Cellgard xyz";  // TODO: get from materials DB
+        public string HousingName => "PRIMA FCL";  // From packaging case material name
+
+        #endregion
     }
 }
