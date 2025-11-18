@@ -41,18 +41,6 @@ namespace CellCAD.viewmodels
             set { if (value == null) return; _model = value;OnPropertyChanged(nameof(Model)); RaiseAll(); }
         }
 
-        // Cell type selection (Pouch / Prismatic / Cylindrical)
-        private CellType _selectedCellType = CellType.Pouch;
-        public CellType SelectedCellType
-        {
-            get => _selectedCellType;
-            set
-            {
-                _selectedCellType = value;
-                OnPropertyChanged();
-            }
-        }
-
         // ========== BODY ==========
         public double Length_mm
         {

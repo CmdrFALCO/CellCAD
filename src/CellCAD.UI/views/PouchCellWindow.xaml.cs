@@ -11,7 +11,9 @@ namespace CellCAD.views
     public partial class PouchCellWindow : Window
     {
         private CadSceneHost? _scene;
-        private PouchCellViewModel _vm;
+        private PouchCellViewModel _pouchVm;
+        private PrismaticCellViewModel _prismaticVm;
+        private CellDesignerShellViewModel _shellVm;
         private StackConfigurationViewModel _stackVm;
         private Canvas? _canvasFullLayout;
         private Canvas? _canvasCornerZoom;
@@ -22,9 +24,11 @@ namespace CellCAD.views
         {
             InitializeComponent();
 
-            _vm = new PouchCellViewModel(PouchCellParameters.NeutralPreset);
+            _pouchVm = new PouchCellViewModel(PouchCellParameters.NeutralPreset);
+            _prismaticVm = new PrismaticCellViewModel();
+            _shellVm = new CellDesignerShellViewModel(_pouchVm, _prismaticVm);
             _stackVm = new StackConfigurationViewModel();
-            DataContext = _vm;
+            DataContext = _shellVm;
 
             // Set Stack Configuration panel's DataContext after InitializeComponent
             // (PanelStackConfig is defined in XAML)
@@ -55,7 +59,7 @@ namespace CellCAD.views
                 RenderCasePreview();
             };
 
-            _vm.PropertyChanged += (_, __) =>
+            _pouchVm.PropertyChanged += (_, __) =>
             {
                 RenderSheetViews();
                 RenderCasePreview();
@@ -76,11 +80,11 @@ namespace CellCAD.views
         {
             if (_canvasFullLayout != null)
             {
-                SheetRenderer.RenderFullLayout(_canvasFullLayout, _vm);
+                SheetRenderer.RenderFullLayout(_canvasFullLayout, _pouchVm);
             }
             if (_canvasCornerZoom != null)
             {
-                SheetRenderer.RenderCornerZoom(_canvasCornerZoom, _vm);
+                SheetRenderer.RenderCornerZoom(_canvasCornerZoom, _pouchVm);
             }
         }
 
@@ -88,25 +92,25 @@ namespace CellCAD.views
         {
             if (_canvasCasePreview != null)
             {
-                SheetRenderer.DrawPackagingCase(_canvasCasePreview, _vm);
+                SheetRenderer.DrawPackagingCase(_canvasCasePreview, _pouchVm);
             }
         }
 
         private void ViewModelOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            _scene?.BuildPouchCell(_vm.Model);
+            _scene?.BuildPouchCell(_pouchVm.Model);
         }
 
         private void Normalize_Click(object sender, RoutedEventArgs e)
         {
-            _vm.Normalize();
+            _pouchVm.Normalize();
         }
 
 
         private void Fit_Click(object sender, RoutedEventArgs e)
         {
             // Canvas auto-fits geometry in BuildPouchCell
-            _scene?.BuildPouchCell(_vm.Model);
+            _scene?.BuildPouchCell(_pouchVm.Model);
         }
 
 
@@ -122,7 +126,7 @@ namespace CellCAD.views
 
         protected override void OnClosed(System.EventArgs e)
         {
-            _vm.PropertyChanged -= ViewModelOnPropertyChanged;
+            _pouchVm.PropertyChanged -= ViewModelOnPropertyChanged;
             base.OnClosed(e);
             _scene?.Dispose();
         }

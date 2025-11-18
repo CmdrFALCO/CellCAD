@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:converters="clr-namespace:CellCAD.converters"
+        xmlns:views="clr-namespace:CellCAD.views"
         mc:Ignorable="d"
         Title="CellCAD – Pouch Cell Stack Designer" Height="900" Width="1600">
 
@@ -195,7 +196,8 @@
             <Grid>
                 <!-- ========== POUCH CELL ROOT PANEL ========== -->
                 <Grid x:Name="PouchCellRootGrid"
-                      Visibility="{Binding SelectedCellType, Converter={StaticResource EnumToVis}, ConverterParameter=Pouch}">
+                      DataContext="{Binding PouchVm}"
+                      Visibility="{Binding DataContext.SelectedCellType, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource EnumToVis}, ConverterParameter=Pouch}">
                 <Grid.ColumnDefinitions>
                     <!-- LEFT: Navigation sidebar -->
                     <ColumnDefinition Width="180" MinWidth="160"/>
@@ -261,291 +263,7 @@
 
                     <!-- ========== SHEET DESIGN PANEL ========== -->
                     <Grid x:Name="PanelSheetDesign" Visibility="{Binding IsChecked, ElementName=TabSheetDesign, Converter={StaticResource BoolToVis}}">
-                        <StackPanel>
-                            <TextBlock Text="Sheet Design" FontSize="18" FontWeight="Bold" Margin="0,0,0,16"/>
-
-                            <!-- Sheet Dimensions Table -->
-                            <TextBlock Text="Sheet Dimensions" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8"/>
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="140"/>
-                                    <ColumnDefinition Width="60"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                </Grid.RowDefinitions>
-
-                                <!-- Headers -->
-                                <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource TableHeader}">
-                                    <TextBlock Text="Sheet Dimensions" Style="{StaticResource HeaderText}" HorizontalAlignment="Left"/>
-                                </Border>
-                                <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource TableHeader}">
-                                    <TextBlock Text="[mm]" Style="{StaticResource HeaderText}"/>
-                                </Border>
-                                <Border Grid.Row="0" Grid.Column="2" Style="{StaticResource TableHeader}">
-                                    <TextBlock Text="Cathode" Style="{StaticResource HeaderText}"/>
-                                </Border>
-                                <Border Grid.Row="0" Grid.Column="3" Style="{StaticResource TableHeader}">
-                                    <TextBlock Text="Anode" Style="{StaticResource HeaderText}"/>
-                                </Border>
-                                <Border Grid.Row="0" Grid.Column="4" Style="{StaticResource TableHeader}">
-                                    <TextBlock Text="Separator" Style="{StaticResource HeaderText}"/>
-                                </Border>
-
-                                <!-- Height (y) row -->
-                                <Border Grid.Row="1" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
-                                    <TextBlock Text="Height (y)" VerticalAlignment="Center"/>
-                                </Border>
-                                <Border Grid.Row="1" Grid.Column="1" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
-                                    <TextBlock Text="[mm]" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                </Border>
-                                <Border Grid.Row="1" Grid.Column="2" Padding="2" BorderBrush="#CCC" BorderThickness="1">
-                                    <TextBox Style="{StaticResource InputTextBox}" 
-                                             Text="{Binding CathodeHeight_mm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                             PreviewTextInput="NumericOnly"/>
-                                </Border>
-                                <Border Grid.Row="1" Grid.Column="3" Padding="2" BorderBrush="#CCC" BorderThickness="1">
-                                    <TextBox Style="{StaticResource CalcTextBox}" 
-                                             Text="{Binding AnodeHeight_mm, Mode=OneWay}"/>
-                                </Border>
-                                <Border Grid.Row="1" Grid.Column="4" Padding="2" BorderBrush="#CCC" BorderThickness="1">
-                                    <TextBox Style="{StaticResource CalcTextBox}" 
-                                             Text="{Binding SeparatorHeight_mm, Mode=OneWay}"/>
-                                </Border>
-
-                                <!-- Width (x) row -->
-                                <Border Grid.Row="2" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
-                                    <TextBlock Text="Width (x)" VerticalAlignment="Center"/>
-                                </Border>
-                                <Border Grid.Row="2" Grid.Column="1" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
-                                    <TextBlock Text="[mm]" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                </Border>
-                                <Border Grid.Row="2" Grid.Column="2" Padding="2" BorderBrush="#CCC" BorderThickness="1">
-                                    <TextBox Style="{StaticResource InputTextBox}" 
-                                             Text="{Binding CathodeWidth_mm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                             PreviewTextInput="NumericOnly"/>
-                                </Border>
-                                <Border Grid.Row="2" Grid.Column="3" Padding="2" BorderBrush="#CCC" BorderThickness="1">
-                                    <TextBox Style="{StaticResource CalcTextBox}" 
-                                             Text="{Binding AnodeWidth_mm, Mode=OneWay}"/>
-                                </Border>
-                                <Border Grid.Row="2" Grid.Column="4" Padding="2" BorderBrush="#CCC" BorderThickness="1">
-                                    <TextBox Style="{StaticResource CalcTextBox}" 
-                                             Text="{Binding SeparatorWidth_mm, Mode=OneWay}"/>
-                                </Border>
-
-                                <!-- Area row -->
-                                <Border Grid.Row="3" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
-                                    <TextBlock Text="Area" VerticalAlignment="Center"/>
-                                </Border>
-                                <Border Grid.Row="3" Grid.Column="1" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
-                                    <TextBlock Text="[cm²]" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                </Border>
-                                <Border Grid.Row="3" Grid.Column="2" Padding="2" BorderBrush="#CCC" BorderThickness="1">
-                                    <TextBox Style="{StaticResource CalcTextBox}" Text="{Binding CathodeArea_cm2, StringFormat=F1, Mode=OneWay}"/>
-                                </Border>
-                                <Border Grid.Row="3" Grid.Column="3" Padding="2" BorderBrush="#CCC" BorderThickness="1">
-                                    <TextBox Style="{StaticResource CalcTextBox}" Text="{Binding AnodeArea_cm2, StringFormat=F1, Mode=OneWay}"/>
-                                </Border>
-                                <Border Grid.Row="3" Grid.Column="4" Padding="2" BorderBrush="#CCC" BorderThickness="1">
-                                    <TextBox Style="{StaticResource CalcTextBox}" Text="{Binding SeparatorArea_cm2, StringFormat=F1, Mode=OneWay}"/>
-                                </Border>
-
-                                <!-- Offsets Section Header -->
-                                <Border Grid.Row="4" Grid.Column="0" Background="#666666" Padding="4,8" BorderBrush="White" BorderThickness="1" Grid.ColumnSpan="5">
-                                    <TextBlock Text="Offsets to Cathode" Foreground="White" FontWeight="Bold"/>
-                                </Border>
-
-                                <!-- Offsets Section Header -->
-                                <Border Grid.Row="4" Grid.Column="0" Background="#666666" Padding="4,8" BorderBrush="White" BorderThickness="1" Grid.ColumnSpan="5">
-                                    <TextBlock Text="Offsets to Cathode" Foreground="White" FontWeight="Bold"/>
-                                </Border>
-
-                                <!-- Offset Height (y) -->
-                                <Border Grid.Row="5" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
-                                    <TextBlock Text="Height (y)" VerticalAlignment="Center"/>
-                                </Border>
-                                <Border Grid.Row="5" Grid.Column="1" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
-                                    <TextBlock Text="[mm]" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                </Border>
-                                <Border Grid.Row="5" Grid.Column="2" Background="#888" Padding="2" BorderBrush="#CCC" BorderThickness="1"/>
-                                <Border Grid.Row="5" Grid.Column="3" Padding="2" BorderBrush="#CCC" BorderThickness="1">
-                                    <!-- InputTextBox (BLACK) with TwoWay binding -->
-                                    <TextBox Style="{StaticResource InputTextBox}" 
-                                             Text="{Binding AnodeOffsetY_mm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                             PreviewTextInput="NumericOnly"/>
-                                </Border>
-                                <Border Grid.Row="5" Grid.Column="4" Padding="2" BorderBrush="#CCC" BorderThickness="1">
-                                    <!-- InputTextBox (BLACK) with TwoWay binding -->
-                                    <TextBox Style="{StaticResource InputTextBox}" 
-                                             Text="{Binding SeparatorOffsetY_mm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                             PreviewTextInput="NumericOnly"/>
-                                </Border>
-
-                                <!-- Offset Width (x) -->
-                                <Border Grid.Row="6" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
-                                    <TextBlock Text="Width (x)" VerticalAlignment="Center"/>
-                                </Border>
-                                <Border Grid.Row="6" Grid.Column="1" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
-                                    <TextBlock Text="[mm]" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                </Border>
-                                <Border Grid.Row="6" Grid.Column="2" Background="#888" Padding="2" BorderBrush="#CCC" BorderThickness="1"/>
-                                <Border Grid.Row="6" Grid.Column="3" Padding="2" BorderBrush="#CCC" BorderThickness="1">
-                                    <!-- InputTextBox (BLACK) with TwoWay binding -->
-                                    <TextBox Style="{StaticResource InputTextBox}" 
-                                             Text="{Binding AnodeOffsetX_mm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                             PreviewTextInput="NumericOnly"/>
-                                </Border>
-                                <Border Grid.Row="6" Grid.Column="4" Padding="2" BorderBrush="#CCC" BorderThickness="1">
-                                    <!-- InputTextBox (BLACK) with TwoWay binding -->
-                                    <TextBox Style="{StaticResource InputTextBox}" 
-                                             Text="{Binding SeparatorOffsetX_mm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                             PreviewTextInput="NumericOnly"/>
-                                </Border>
-                            </Grid>
-
-                            <!-- Flag Positions -->
-                            <TextBlock Text="Flag Positions" FontSize="14" FontWeight="SemiBold" Margin="0,24,0,8"/>
-                            <StackPanel Orientation="Horizontal" Margin="0,4">
-                                <CheckBox Content="Opposite Sides" IsChecked="{Binding FlagsOnOppositeSides}" Margin="0,0,16,0"/>
-                                <CheckBox Content="Same Sides" IsChecked="{Binding FlagsOnSameSide}"/>
-                            </StackPanel>
-
-                            <Grid Margin="0,8,0,0">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="140"/>
-                                    <ColumnDefinition Width="60"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                </Grid.RowDefinitions>
-
-                                <!-- Headers -->
-                                <Border Grid.Row="0" Grid.Column="2" Style="{StaticResource TableHeader}">
-                                    <TextBlock Text="Cathode" Style="{StaticResource HeaderText}"/>
-                                </Border>
-                                <Border Grid.Row="0" Grid.Column="3" Style="{StaticResource TableHeader}">
-                                    <TextBlock Text="Anode" Style="{StaticResource HeaderText}"/>
-                                </Border>
-
-                                <!-- Height (y) -->
-                                <Border Grid.Row="1" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
-                                    <TextBlock Text="Height (y)" VerticalAlignment="Center"/>
-                                </Border>
-                                <Border Grid.Row="1" Grid.Column="1" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
-                                    <TextBlock Text="[mm]" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                </Border>
-                                <Border Grid.Row="1" Grid.Column="2" Padding="2" BorderBrush="#CCC" BorderThickness="1">
-                                    <TextBox Style="{StaticResource InputTextBox}"
-                                             Text="{Binding CathodeFlagHeight_mm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                             PreviewTextInput="NumericOnly"/>
-                                </Border>
-                                <Border Grid.Row="1" Grid.Column="3" Padding="2" BorderBrush="#CCC" BorderThickness="1">
-                                    <TextBox Style="{StaticResource InputTextBox}"
-                                             Text="{Binding AnodeFlagHeight_mm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                             PreviewTextInput="NumericOnly"/>
-                                </Border>
-
-                                <!-- Width (x) -->
-                                <Border Grid.Row="2" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
-                                    <TextBlock Text="Width (x)" VerticalAlignment="Center"/>
-                                </Border>
-                                <Border Grid.Row="2" Grid.Column="1" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
-                                    <TextBlock Text="[mm]" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                </Border>
-                                <Border Grid.Row="2" Grid.Column="2" Padding="2" BorderBrush="#CCC" BorderThickness="1">
-                                    <TextBox Style="{StaticResource InputTextBox}"
-                                             Text="{Binding CathodeFlagWidth_mm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                             PreviewTextInput="NumericOnly"/>
-                                </Border>
-                                <Border Grid.Row="2" Grid.Column="3" Padding="2" BorderBrush="#CCC" BorderThickness="1">
-                                    <TextBox Style="{StaticResource InputTextBox}"
-                                             Text="{Binding AnodeFlagWidth_mm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                             PreviewTextInput="NumericOnly"/>
-                                </Border>
-
-                                <!-- Offset (x) -->
-                                <Border Grid.Row="3" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
-                                    <TextBlock Text="Offset (x)" VerticalAlignment="Center"/>
-                                </Border>
-                                <Border Grid.Row="3" Grid.Column="1" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
-                                    <TextBlock Text="[mm]" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                </Border>
-                                <Border Grid.Row="3" Grid.Column="2" Padding="2" BorderBrush="#CCC" BorderThickness="1">
-                                    <TextBox Style="{StaticResource InputTextBox}"
-                                             Text="{Binding CathodeFlagOffsetX_mm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                             PreviewTextInput="NumericOnly"/>
-                                </Border>
-                                <Border Grid.Row="3" Grid.Column="3" Padding="2" BorderBrush="#CCC" BorderThickness="1">
-                                    <TextBox Style="{StaticResource InputTextBox}"
-                                             Text="{Binding AnodeFlagOffsetX_mm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                             PreviewTextInput="NumericOnly"/>
-                                </Border>
-                            </Grid>
-
-                            <!-- Update Stack Dimensions -->
-                            <Border Background="#F0F0F0" Padding="12" Margin="0,24,0,0" BorderBrush="#CCC" BorderThickness="1">
-                                <StackPanel>
-                                    <CheckBox Content="Update Stack Dimensions" IsChecked="{Binding UpdateStackDimensions}" 
-                                              FontWeight="SemiBold" Margin="0,0,0,8"/>
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="140"/>
-                                            <ColumnDefinition Width="60"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="Auto"/>
-                                        </Grid.RowDefinitions>
-
-                                        <Border Grid.Row="0" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
-                                            <TextBlock Text="Height (y)" VerticalAlignment="Center"/>
-                                        </Border>
-                                        <Border Grid.Row="0" Grid.Column="1" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
-                                            <TextBlock Text="[mm]" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                        </Border>
-                                        <Border Grid.Row="0" Grid.Column="2" Padding="2" BorderBrush="#CCC" BorderThickness="1">
-                                            <TextBox Style="{StaticResource InputTextBox}"
-                                                     Text="{Binding StackHeight_mm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                     IsEnabled="{Binding UpdateStackDimensions}"
-                                                     PreviewTextInput="NumericOnly"/>
-                                        </Border>
-
-                                        <Border Grid.Row="1" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
-                                            <TextBlock Text="Width (x)" VerticalAlignment="Center"/>
-                                        </Border>
-                                        <Border Grid.Row="1" Grid.Column="1" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
-                                            <TextBlock Text="[mm]" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                        </Border>
-                                        <Border Grid.Row="1" Grid.Column="2" Padding="2" BorderBrush="#CCC" BorderThickness="1">
-                                            <TextBox Style="{StaticResource InputTextBox}"
-                                                     Text="{Binding StackWidth_mm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                     IsEnabled="{Binding UpdateStackDimensions}"
-                                                     PreviewTextInput="NumericOnly"/>
-                                        </Border>
-                                    </Grid>
-                                    <TextBlock Text="*Values must be between anode and separator dimensions" 
-                                               FontStyle="Italic" FontSize="10" Foreground="#666" Margin="0,8,0,0"/>
-                                </StackPanel>
-                            </Border>
-                        </StackPanel>
+                        <views:SheetDesignView />
                     </Grid>
 
                     <!-- ========== STACK CONFIGURATION PANEL ========== -->
@@ -2786,24 +2504,135 @@
 
             <!-- ========== PRISMATIC CELL ROOT PANEL ========== -->
             <Grid x:Name="PrismaticCellRootGrid"
-                  Visibility="{Binding SelectedCellType, Converter={StaticResource EnumToVis}, ConverterParameter=Prismatic}">
-                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <TextBlock Text="Prismatic Cell Designer"
-                               FontSize="24"
-                               FontWeight="Bold"
+                  DataContext="{Binding PrismaticVm}"
+                  Visibility="{Binding DataContext.SelectedCellType, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource EnumToVis}, ConverterParameter=Prismatic}">
+                <Grid.ColumnDefinitions>
+                    <!-- LEFT: Navigation sidebar -->
+                    <ColumnDefinition Width="180" MinWidth="160"/>
+
+                    <!-- CENTER: Parameter panels -->
+                    <ColumnDefinition Width="*" MinWidth="700"/>
+
+                    <!-- SPLITTER / helper column -->
+                    <ColumnDefinition Width="Auto"/>
+
+                    <!-- RIGHT: Preview panels -->
+                    <ColumnDefinition Width="380" MinWidth="360" MaxWidth="420"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- ========== LEFT SIDEBAR: MAIN TAB NAVIGATION ========== -->
+                <Border Grid.Column="0" Background="#F0F0F0" BorderBrush="#AAA" BorderThickness="0,0,1,0">
+                    <StackPanel Margin="8">
+                        <TextBlock Text="Navigation" FontWeight="Bold" FontSize="12" Margin="0,8,0,8" Foreground="#666"/>
+
+                        <!-- Main Section Tabs -->
+                        <RadioButton x:Name="PrismTabSheetDesign" Content="Sheet Design" Style="{StaticResource MainTabStyle}" IsChecked="True" GroupName="PrismaticMainTabs"/>
+                        <RadioButton x:Name="PrismTabStackConfig" Content="Stack Config." Style="{StaticResource MainTabStyle}" GroupName="PrismaticMainTabs"/>
+                        <RadioButton x:Name="PrismTabPackaging" Content="Packaging" Style="{StaticResource MainTabStyle}" GroupName="PrismaticMainTabs"/>
+                        <RadioButton x:Name="PrismTabReport" Content="Report" Style="{StaticResource MainTabStyle}" GroupName="PrismaticMainTabs"/>
+                        <RadioButton x:Name="PrismTabBoM" Content="BoM" Style="{StaticResource MainTabStyle}" GroupName="PrismaticMainTabs"/>
+                        <RadioButton x:Name="PrismTabExport" Content="Export" Style="{StaticResource MainTabStyle}" GroupName="PrismaticMainTabs"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- ========== CENTER: PARAMETER PANELS ========== -->
+                <Border Grid.Column="1" Padding="16">
+                    <Grid>
+                        <!-- Sheet Design Panel -->
+                        <Grid x:Name="PrismPanelSheetDesign"
+                              Background="White"
+                              Visibility="{Binding IsChecked, ElementName=PrismTabSheetDesign, Converter={StaticResource BoolToVis}}">
+                            <TextBlock Text="Prismatic Sheet Design – not implemented yet"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       FontSize="20"
+                                       FontStyle="Italic"/>
+                        </Grid>
+
+                        <!-- Stack Configuration Panel -->
+                        <Grid x:Name="PrismPanelStackConfig"
+                              Background="White"
+                              Visibility="{Binding IsChecked, ElementName=PrismTabStackConfig, Converter={StaticResource BoolToVis}}">
+                            <TextBlock Text="Prismatic Stack Configuration – not implemented yet"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       FontSize="20"
+                                       FontStyle="Italic"/>
+                        </Grid>
+
+                        <!-- Packaging Panel -->
+                        <Grid x:Name="PrismPanelPackaging"
+                              Background="White"
+                              Visibility="{Binding IsChecked, ElementName=PrismTabPackaging, Converter={StaticResource BoolToVis}}">
+                            <TextBlock Text="Prismatic Packaging – not implemented yet"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       FontSize="20"
+                                       FontStyle="Italic"/>
+                        </Grid>
+
+                        <!-- Report Panel -->
+                        <Grid x:Name="PrismPanelReport"
+                              Background="White"
+                              Visibility="{Binding IsChecked, ElementName=PrismTabReport, Converter={StaticResource BoolToVis}}">
+                            <TextBlock Text="Prismatic Report – not implemented yet"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       FontSize="20"
+                                       FontStyle="Italic"/>
+                        </Grid>
+
+                        <!-- BoM Panel -->
+                        <Grid x:Name="PrismPanelBoM"
+                              Background="White"
+                              Visibility="{Binding IsChecked, ElementName=PrismTabBoM, Converter={StaticResource BoolToVis}}">
+                            <TextBlock Text="Prismatic BoM – not implemented yet"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       FontSize="20"
+                                       FontStyle="Italic"/>
+                        </Grid>
+
+                        <!-- Export Panel -->
+                        <Grid x:Name="PrismPanelExport"
+                              Background="White"
+                              Visibility="{Binding IsChecked, ElementName=PrismTabExport, Converter={StaticResource BoolToVis}}">
+                            <TextBlock Text="Prismatic Export – not implemented yet"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       FontSize="20"
+                                       FontStyle="Italic"/>
+                        </Grid>
+                    </Grid>
+                </Border>
+
+                <!-- ========== SPLITTER ========== -->
+                <GridSplitter Grid.Column="2"
+                              Width="5"
+                              HorizontalAlignment="Center"
+                              VerticalAlignment="Stretch"
+                              Background="#555"
+                              ShowsPreview="False"/>
+
+                <!-- ========== RIGHT: PREVIEW PLACEHOLDER ========== -->
+                <Border Grid.Column="3"
+                        BorderBrush="#CCC"
+                        BorderThickness="1"
+                        Background="White"
+                        Padding="20">
+                    <TextBlock Text="Prismatic preview – not implemented yet"
                                HorizontalAlignment="Center"
-                               Margin="0,0,0,16"/>
-                    <TextBlock Text="Prismatic cell UI not implemented yet"
-                               FontSize="16"
+                               VerticalAlignment="Center"
                                FontStyle="Italic"
-                               Foreground="#666"
-                               HorizontalAlignment="Center"/>
-                </StackPanel>
+                               FontSize="16"
+                               Foreground="#999"
+                               TextWrapping="Wrap"/>
+                </Border>
             </Grid>
 
             <!-- ========== CYLINDRICAL CELL ROOT PANEL ========== -->
             <Grid x:Name="CylindricalCellRootGrid"
-                  Visibility="{Binding SelectedCellType, Converter={StaticResource EnumToVis}, ConverterParameter=Cylindrical}">
+                  Visibility="{Binding DataContext.SelectedCellType, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource EnumToVis}, ConverterParameter=Cylindrical}">
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                     <TextBlock Text="Cylindrical Cell Designer"
                                FontSize="24"
