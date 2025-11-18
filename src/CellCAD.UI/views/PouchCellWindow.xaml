@@ -2529,6 +2529,15 @@
                         <RadioButton x:Name="PrismTabSheetDesign" Content="Sheet Design" Style="{StaticResource MainTabStyle}" IsChecked="True" GroupName="PrismaticMainTabs"/>
                         <RadioButton x:Name="PrismTabStackConfig" Content="Stack Config." Style="{StaticResource MainTabStyle}" GroupName="PrismaticMainTabs"/>
                         <RadioButton x:Name="PrismTabPackaging" Content="Packaging" Style="{StaticResource MainTabStyle}" GroupName="PrismaticMainTabs"/>
+
+                        <!-- Sub-tabs for Packaging (visible when Packaging is selected) -->
+                        <StackPanel Visibility="{Binding IsChecked, ElementName=PrismTabPackaging, Converter={StaticResource BoolToVis}}">
+                            <RadioButton x:Name="PrismSubTabCase" Content="Case" Style="{StaticResource SubTabStyle}" IsChecked="True" GroupName="PrismaticPackagingSubTabs"/>
+                            <RadioButton x:Name="PrismSubTabTable" Content="Table" Style="{StaticResource SubTabStyle}" GroupName="PrismaticPackagingSubTabs"/>
+                            <RadioButton x:Name="PrismSubTabAddFoils" Content="Add. Foils" Style="{StaticResource SubTabStyle}" GroupName="PrismaticPackagingSubTabs"/>
+                            <RadioButton x:Name="PrismSubTabFixingTape" Content="Fixing Tape" Style="{StaticResource SubTabStyle}" GroupName="PrismaticPackagingSubTabs"/>
+                        </StackPanel>
+
                         <RadioButton x:Name="PrismTabReport" Content="Report" Style="{StaticResource MainTabStyle}" GroupName="PrismaticMainTabs"/>
                         <RadioButton x:Name="PrismTabBoM" Content="BoM" Style="{StaticResource MainTabStyle}" GroupName="PrismaticMainTabs"/>
                         <RadioButton x:Name="PrismTabExport" Content="Export" Style="{StaticResource MainTabStyle}" GroupName="PrismaticMainTabs"/>
@@ -2542,33 +2551,1153 @@
                         <Grid x:Name="PrismPanelSheetDesign"
                               Background="White"
                               Visibility="{Binding IsChecked, ElementName=PrismTabSheetDesign, Converter={StaticResource BoolToVis}}">
-                            <TextBlock Text="Prismatic Sheet Design – not implemented yet"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"
-                                       FontSize="20"
-                                       FontStyle="Italic"/>
+                            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                <views:SheetDesignView />
+                            </ScrollViewer>
                         </Grid>
 
                         <!-- Stack Configuration Panel -->
                         <Grid x:Name="PrismPanelStackConfig"
                               Background="White"
                               Visibility="{Binding IsChecked, ElementName=PrismTabStackConfig, Converter={StaticResource BoolToVis}}">
-                            <TextBlock Text="Prismatic Stack Configuration – not implemented yet"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"
-                                       FontSize="20"
-                                       FontStyle="Italic"/>
+                            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                <StackPanel Margin="16">
+                                    <!-- Cell Configuration -->
+                                    <TextBlock Text="Cell Configuration" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="280"/>
+                                            <ColumnDefinition Width="80"/>
+                                            <ColumnDefinition Width="120"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+
+                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Number of stacks in cell" VerticalAlignment="Center" Margin="4"/>
+                                        <TextBlock Grid.Row="0" Grid.Column="1" Text="No." VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                        <TextBox Grid.Row="0" Grid.Column="2" Style="{StaticResource InputTextBox}"
+                                                 Text="{Binding NumberOfStacksInCell, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                 PreviewTextInput="NumericOnly" Margin="4"/>
+
+                                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Number of electrode pairs in stack" VerticalAlignment="Center" Margin="4"/>
+                                        <TextBlock Grid.Row="1" Grid.Column="1" Text="No." VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                        <TextBox Grid.Row="1" Grid.Column="2" Style="{StaticResource InputTextBox}"
+                                                 Text="{Binding ElectrodePairsPerStack, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                 PreviewTextInput="NumericOnly" Margin="4"/>
+
+                                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Number of electrode pairs in cell" VerticalAlignment="Center" Margin="4"/>
+                                        <TextBlock Grid.Row="2" Grid.Column="1" Text="No." VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                        <TextBox Grid.Row="2" Grid.Column="2" Style="{StaticResource CalcTextBox}"
+                                                 Text="{Binding ElectrodePairsInCell, Mode=OneWay}"
+                                                 IsReadOnly="True" Margin="4"/>
+
+                                        <CheckBox Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2"
+                                                  Content="Calculate electrode pairs by Maximum Cell thickness (100% SoC) [mm]"
+                                                  IsChecked="{Binding CalculateByMaxCellThickness, Mode=TwoWay}"
+                                                  VerticalAlignment="Center" Margin="4"/>
+                                        <TextBox Grid.Row="4" Grid.Column="2" Style="{StaticResource InputTextBox}"
+                                                 Text="{Binding MaxCellThickness_SoC100_mm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                 PreviewTextInput="NumericOnly" Margin="4"/>
+                                    </Grid>
+
+                                    <!-- End Electrodes in Stack and Coatings -->
+                                    <Grid Margin="0,24,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <StackPanel Grid.Column="0" Margin="0,0,16,0">
+                                            <TextBlock Text="End Electrodes in Stack" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                                            <RadioButton Content="Both Negative" GroupName="PrismaticEndElectrodes"
+                                                         IsChecked="{Binding EndElectrodes, Converter={StaticResource EnumToBool}, ConverterParameter=BothNegative}"
+                                                         Margin="0,4"/>
+                                            <RadioButton Content="Both Positive" GroupName="PrismaticEndElectrodes"
+                                                         IsChecked="{Binding EndElectrodes, Converter={StaticResource EnumToBool}, ConverterParameter=BothPositive}"
+                                                         Margin="0,4"/>
+                                            <RadioButton Content="Positive/Negative" GroupName="PrismaticEndElectrodes"
+                                                         IsChecked="{Binding EndElectrodes, Converter={StaticResource EnumToBool}, ConverterParameter=PositiveNegative}"
+                                                         Margin="0,4"/>
+                                        </StackPanel>
+
+                                        <StackPanel Grid.Column="1">
+                                            <TextBlock Text="Coatings at End Electrodes" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                                            <RadioButton Content="Both double sided" GroupName="PrismaticEndCoatings"
+                                                         IsChecked="{Binding EndCoatings, Converter={StaticResource EnumToBool}, ConverterParameter=BothDouble}"
+                                                         Margin="0,4"/>
+                                            <RadioButton Content="1 single sided" GroupName="PrismaticEndCoatings"
+                                                         IsChecked="{Binding EndCoatings, Converter={StaticResource EnumToBool}, ConverterParameter=OneSingle}"
+                                                         Margin="0,4"/>
+                                            <RadioButton Content="Both single sided" GroupName="PrismaticEndCoatings"
+                                                         IsChecked="{Binding EndCoatings, Converter={StaticResource EnumToBool}, ConverterParameter=BothSingle}"
+                                                         Margin="0,4"/>
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <!-- Additional Elements -->
+                                    <TextBlock Text="Additional Elements" FontSize="14" FontWeight="SemiBold" Margin="0,24,0,8"/>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="280"/>
+                                            <ColumnDefinition Width="80"/>
+                                            <ColumnDefinition Width="120"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+
+                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Separator overwraps (each stack)" VerticalAlignment="Center" Margin="4"/>
+                                        <TextBlock Grid.Row="0" Grid.Column="1" Text="[um]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                        <TextBox Grid.Row="0" Grid.Column="2" Style="{StaticResource InputTextBox}"
+                                                 Text="{Binding SeparatorOverwrapsPerStack, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                 PreviewTextInput="NumericOnly" Margin="4"/>
+
+                                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Add. overwrap (each stack)" VerticalAlignment="Center" Margin="4"/>
+                                        <TextBlock Grid.Row="1" Grid.Column="1" Text="[um]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                        <TextBox Grid.Row="1" Grid.Column="2" Style="{StaticResource InputTextBox}"
+                                                 Text="{Binding AdditionalOverwrapsPerStack, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                 PreviewTextInput="NumericOnly" Margin="4"/>
+
+                                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Insulation Shell (around all stacks)" VerticalAlignment="Center" Margin="4"/>
+                                        <TextBlock Grid.Row="2" Grid.Column="1" Text="[um]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                        <TextBox Grid.Row="2" Grid.Column="2" Style="{StaticResource InputTextBox}"
+                                                 Text="{Binding InsulationShellAroundAllStacks, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                 PreviewTextInput="NumericOnly" Margin="4"/>
+
+                                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Fixing Tapes" VerticalAlignment="Center" Margin="4"/>
+                                        <TextBlock Grid.Row="3" Grid.Column="1" Text="[um]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                        <TextBox Grid.Row="3" Grid.Column="2" Style="{StaticResource InputTextBox}"
+                                                 Text="{Binding FixingTapesPerStack, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                 PreviewTextInput="NumericOnly" Margin="4"/>
+
+                                        <CheckBox Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3"
+                                                  Content="Fixing tapes on all stacks?"
+                                                  IsChecked="{Binding FixingTapesOnAllStacks, Mode=TwoWay}"
+                                                  Margin="4,8,4,4"/>
+                                    </Grid>
+
+                                    <!-- Calculated Thickness -->
+                                    <TextBlock Text="Calculated Thickness" FontSize="14" FontWeight="SemiBold" Margin="0,24,0,8"/>
+                                    <Border BorderBrush="#CCC" BorderThickness="1">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="220"/>
+                                                <ColumnDefinition Width="60"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+
+                                            <!-- Headers -->
+                                            <Border Grid.Row="0" Grid.Column="0" Background="#0078D4" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBlock Text="Calculated Thickness" Foreground="White" FontWeight="Bold" HorizontalAlignment="Left"/>
+                                            </Border>
+                                            <Border Grid.Row="0" Grid.Column="1" Background="#0078D4" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBlock Text="Unit" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                            </Border>
+                                            <Border Grid.Row="0" Grid.Column="2" Background="#0078D4" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBlock Text="Dry Electrodes" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                            </Border>
+                                            <Border Grid.Row="0" Grid.Column="3" Background="#0078D4" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBlock Text="0% SoC" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                            </Border>
+                                            <Border Grid.Row="0" Grid.Column="4" Background="#0078D4" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBlock Text="100% SoC" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                            </Border>
+
+                                            <!-- Single Stack -->
+                                            <Border Grid.Row="1" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBlock Text="Single Stack" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <Border Grid.Row="1" Grid.Column="1" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBlock Text="[mm]" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                            </Border>
+                                            <Border Grid.Row="1" Grid.Column="2" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBox Style="{StaticResource CalcTextBox}" Text="{Binding SingleStackThickness_Dry_mm, Mode=OneWay, StringFormat=F2}" IsReadOnly="True"/>
+                                            </Border>
+                                            <Border Grid.Row="1" Grid.Column="3" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBox Style="{StaticResource CalcTextBox}" Text="{Binding SingleStackThickness_SoC0_mm, Mode=OneWay, StringFormat=F2}" IsReadOnly="True"/>
+                                            </Border>
+                                            <Border Grid.Row="1" Grid.Column="4" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBox Style="{StaticResource CalcTextBox}" Text="{Binding SingleStackThickness_SoC100_mm, Mode=OneWay, StringFormat=F2}" IsReadOnly="True"/>
+                                            </Border>
+
+                                            <!-- All Stacks and add. elements -->
+                                            <Border Grid.Row="2" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBlock Text="All Stacks and add. elements" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                            </Border>
+                                            <Border Grid.Row="2" Grid.Column="1" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBlock Text="[mm]" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                            </Border>
+                                            <Border Grid.Row="2" Grid.Column="2" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBox Style="{StaticResource CalcTextBox}" Text="{Binding AllStacksThickness_Dry_mm, Mode=OneWay, StringFormat=F2}" IsReadOnly="True"/>
+                                            </Border>
+                                            <Border Grid.Row="2" Grid.Column="3" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBox Style="{StaticResource CalcTextBox}" Text="{Binding AllStacksThickness_SoC0_mm, Mode=OneWay, StringFormat=F2}" IsReadOnly="True"/>
+                                            </Border>
+                                            <Border Grid.Row="2" Grid.Column="4" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBox Style="{StaticResource CalcTextBox}" Text="{Binding AllStacksThickness_SoC100_mm, Mode=OneWay, StringFormat=F2}" IsReadOnly="True"/>
+                                            </Border>
+
+                                            <!-- Cell outer thickness -->
+                                            <Border Grid.Row="3" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBlock Text="Cell outer thickness" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <Border Grid.Row="3" Grid.Column="1" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBlock Text="[mm]" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                            </Border>
+                                            <Border Grid.Row="3" Grid.Column="2" Padding="2" BorderBrush="#CCC" BorderThickness="1" Grid.ColumnSpan="3">
+                                                <TextBox Style="{StaticResource CalcTextBox}" Text="{Binding CellOuterThickness_mm, Mode=OneWay, StringFormat=F2}" IsReadOnly="True"/>
+                                            </Border>
+
+                                            <!-- Cell inner thickness -->
+                                            <Border Grid.Row="4" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBlock Text="Cell inner thickness" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <Border Grid.Row="4" Grid.Column="1" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBlock Text="[mm]" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                            </Border>
+                                            <Border Grid.Row="4" Grid.Column="2" Padding="2" BorderBrush="#CCC" BorderThickness="1" Grid.ColumnSpan="3">
+                                                <TextBox Style="{StaticResource CalcTextBox}" Text="{Binding CellInnerThickness_mm, Mode=OneWay, StringFormat=F2}" IsReadOnly="True"/>
+                                            </Border>
+
+                                            <!-- Gap to inner wall -->
+                                            <Border Grid.Row="5" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBlock Text="Gap to inner wall" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <Border Grid.Row="5" Grid.Column="1" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBlock Text="[mm]" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                            </Border>
+                                            <Border Grid.Row="5" Grid.Column="2" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBox Style="{StaticResource CalcTextBox}" Text="{Binding GapToInnerWall_Dry_mm, Mode=OneWay, StringFormat=F0}" IsReadOnly="True"/>
+                                            </Border>
+                                            <Border Grid.Row="5" Grid.Column="3" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBox Style="{StaticResource CalcTextBox}" Text="{Binding GapToInnerWall_SoC0_mm, Mode=OneWay, StringFormat=F0}" IsReadOnly="True"/>
+                                            </Border>
+                                            <Border Grid.Row="5" Grid.Column="4" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBox Style="{StaticResource CalcTextBox}" Text="{Binding GapToInnerWall_SoC100_mm, Mode=OneWay, StringFormat=F0}" IsReadOnly="True"/>
+                                            </Border>
+
+                                            <!-- Separator compression -->
+                                            <Border Grid.Row="6" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBlock Text="Separator compression" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <Border Grid.Row="6" Grid.Column="1" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBlock Text="[%]" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                            </Border>
+                                            <Border Grid.Row="6" Grid.Column="2" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBox Style="{StaticResource CalcTextBox}" Text="{Binding SeparatorCompression_Dry_pct, Mode=OneWay, StringFormat=F1}" IsReadOnly="True"/>
+                                            </Border>
+                                            <Border Grid.Row="6" Grid.Column="3" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBox Style="{StaticResource CalcTextBox}" Text="{Binding SeparatorCompression_SoC0_pct, Mode=OneWay, StringFormat=F1}" IsReadOnly="True"/>
+                                            </Border>
+                                            <Border Grid.Row="6" Grid.Column="4" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBox Style="{StaticResource CalcTextBox}" Text="{Binding SeparatorCompression_SoC100_pct, Mode=OneWay, StringFormat=F1}" IsReadOnly="True"/>
+                                            </Border>
+
+                                            <!-- Target separator compression -->
+                                            <Border Grid.Row="7" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBlock Text="Target separator compression" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <Border Grid.Row="7" Grid.Column="1" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBlock Text="[%]" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                            </Border>
+                                            <Border Grid.Row="7" Grid.Column="2" Padding="2" BorderBrush="#CCC" BorderThickness="1" Grid.ColumnSpan="3">
+                                                <TextBox Style="{StaticResource InputTextBox}"
+                                                         Text="{Binding TargetSeparatorCompression_pct, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                         PreviewTextInput="NumericOnly"/>
+                                            </Border>
+                                        </Grid>
+                                    </Border>
+
+                                    <!-- Buttons -->
+                                    <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
+                                        <Button Content="Recalculate Loadings" Command="{Binding RecalculateLoadingsCommand}" Margin="0,0,8,0" Padding="12,6"/>
+                                        <Button Content="Match Compression" Command="{Binding MatchCompressionCommand}" Padding="12,6"/>
+                                    </StackPanel>
+
+                                    <!-- Number of Sheet Layers (in z) -->
+                                    <TextBlock Text="Number of Sheet Layers (in z)" FontSize="14" FontWeight="SemiBold" Margin="0,24,0,8"/>
+                                    <Border BorderBrush="#CCC" BorderThickness="1">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="200"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+
+                                            <!-- Headers -->
+                                            <Border Grid.Row="0" Grid.Column="0" Background="#0078D4" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBlock Text="" Foreground="White" FontWeight="Bold"/>
+                                            </Border>
+                                            <Border Grid.Row="0" Grid.Column="1" Background="#0078D4" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBlock Text="Stack" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                            </Border>
+                                            <Border Grid.Row="0" Grid.Column="2" Background="#0078D4" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBlock Text="Cell" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                            </Border>
+
+                                            <!-- All Electrode Sheets -->
+                                            <Border Grid.Row="1" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBlock Text="All Electrode Sheets" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <Border Grid.Row="1" Grid.Column="1" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBox Style="{StaticResource CalcTextBox}" Text="{Binding AllElectrodeSheets_Stack, Mode=OneWay}" IsReadOnly="True"/>
+                                            </Border>
+                                            <Border Grid.Row="1" Grid.Column="2" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBox Style="{StaticResource CalcTextBox}" Text="{Binding AllElectrodeSheets_Cell, Mode=OneWay}" IsReadOnly="True"/>
+                                            </Border>
+
+                                            <!-- Cathode Sheets -->
+                                            <Border Grid.Row="2" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBlock Text="Cathode Sheets" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <Border Grid.Row="2" Grid.Column="1" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBox Style="{StaticResource CalcTextBox}" Text="{Binding CathodeSheets_Stack, Mode=OneWay}" IsReadOnly="True"/>
+                                            </Border>
+                                            <Border Grid.Row="2" Grid.Column="2" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBox Style="{StaticResource CalcTextBox}" Text="{Binding CathodeSheets_Cell, Mode=OneWay}" IsReadOnly="True"/>
+                                            </Border>
+
+                                            <!-- Anode Sheets -->
+                                            <Border Grid.Row="3" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBlock Text="Anode Sheets" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <Border Grid.Row="3" Grid.Column="1" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBox Style="{StaticResource CalcTextBox}" Text="{Binding AnodeSheets_Stack, Mode=OneWay}" IsReadOnly="True"/>
+                                            </Border>
+                                            <Border Grid.Row="3" Grid.Column="2" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBox Style="{StaticResource CalcTextBox}" Text="{Binding AnodeSheets_Cell, Mode=OneWay}" IsReadOnly="True"/>
+                                            </Border>
+
+                                            <!-- Separator Sheets -->
+                                            <Border Grid.Row="4" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBlock Text="Separator Sheets" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <Border Grid.Row="4" Grid.Column="1" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBox Style="{StaticResource CalcTextBox}" Text="{Binding SeparatorSheets_Stack, Mode=OneWay}" IsReadOnly="True"/>
+                                            </Border>
+                                            <Border Grid.Row="4" Grid.Column="2" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBox Style="{StaticResource CalcTextBox}" Text="{Binding SeparatorSheets_Cell, Mode=OneWay}" IsReadOnly="True"/>
+                                            </Border>
+
+                                            <!-- Overwrap -->
+                                            <Border Grid.Row="5" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBlock Text="Overwrap" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <Border Grid.Row="5" Grid.Column="1" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBox Style="{StaticResource CalcTextBox}" Text="{Binding Overwrap_Stack, Mode=OneWay}" IsReadOnly="True"/>
+                                            </Border>
+                                            <Border Grid.Row="5" Grid.Column="2" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBox Style="{StaticResource CalcTextBox}" Text="{Binding Overwrap_Cell, Mode=OneWay}" IsReadOnly="True"/>
+                                            </Border>
+
+                                            <!-- Insulation Shell -->
+                                            <Border Grid.Row="6" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBlock Text="Insulation Shell" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <Border Grid.Row="6" Grid.Column="1" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBox Style="{StaticResource CalcTextBox}" Text="{Binding InsulationShell_Stack, Mode=OneWay}" IsReadOnly="True"/>
+                                            </Border>
+                                            <Border Grid.Row="6" Grid.Column="2" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBox Style="{StaticResource CalcTextBox}" Text="{Binding InsulationShell_Cell, Mode=OneWay}" IsReadOnly="True"/>
+                                            </Border>
+
+                                            <!-- Fixing Tape -->
+                                            <Border Grid.Row="7" Grid.Column="0" Background="#E0E0E0" Padding="4" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBlock Text="Fixing Tape" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <Border Grid.Row="7" Grid.Column="1" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBox Style="{StaticResource CalcTextBox}" Text="{Binding FixingTape_Stack, Mode=OneWay}" IsReadOnly="True"/>
+                                            </Border>
+                                            <Border Grid.Row="7" Grid.Column="2" Padding="2" BorderBrush="#CCC" BorderThickness="1">
+                                                <TextBox Style="{StaticResource CalcTextBox}" Text="{Binding FixingTape_Cell, Mode=OneWay}" IsReadOnly="True"/>
+                                            </Border>
+                                        </Grid>
+                                    </Border>
+                                </StackPanel>
+                            </ScrollViewer>
                         </Grid>
 
                         <!-- Packaging Panel -->
                         <Grid x:Name="PrismPanelPackaging"
                               Background="White"
                               Visibility="{Binding IsChecked, ElementName=PrismTabPackaging, Converter={StaticResource BoolToVis}}">
-                            <TextBlock Text="Prismatic Packaging – not implemented yet"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"
-                                       FontSize="20"
-                                       FontStyle="Italic"/>
+                            <Grid>
+                                <!-- Case Sub-Panel -->
+                                <Grid x:Name="PrismSubPanelCase"
+                                      Visibility="{Binding IsChecked, ElementName=PrismSubTabCase, Converter={StaticResource BoolToVis}}">
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                        <StackPanel Margin="16">
+                                            <!-- Cell Dimensions -->
+                                        <TextBlock Text="Cell Dimensions" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                                        <Grid Margin="0,0,0,16">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="220"/>
+                                                <ColumnDefinition Width="60"/>
+                                                <ColumnDefinition Width="120"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+
+                                            <!-- Height (y) -->
+                                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Height (y)" VerticalAlignment="Center" Margin="4"/>
+                                            <TextBlock Grid.Row="0" Grid.Column="1" Text="[mm]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                            <TextBox Grid.Row="0" Grid.Column="2" Style="{StaticResource InputTextBox}"
+                                                     Text="{Binding PrismaticVm.CellHeightY_mm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F2}"
+                                                     PreviewTextInput="NumericOnly" Margin="4"/>
+
+                                            <!-- Width (x) -->
+                                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Width (x)" VerticalAlignment="Center" Margin="4"/>
+                                            <TextBlock Grid.Row="1" Grid.Column="1" Text="[mm]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                            <TextBox Grid.Row="1" Grid.Column="2" Style="{StaticResource InputTextBox}"
+                                                     Text="{Binding PrismaticVm.CellWidthX_mm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F2}"
+                                                     PreviewTextInput="NumericOnly" Margin="4"/>
+
+                                            <!-- Thickness (z) -->
+                                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Thickness (z)" VerticalAlignment="Center" Margin="4"/>
+                                            <TextBlock Grid.Row="2" Grid.Column="1" Text="[mm]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                            <TextBox Grid.Row="2" Grid.Column="2" Style="{StaticResource InputTextBox}"
+                                                     Text="{Binding PrismaticVm.CellThicknessZ_mm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F2}"
+                                                     PreviewTextInput="NumericOnly" Margin="4"/>
+
+                                            <!-- Thickness (incl. coating) -->
+                                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Thickness (incl. coating)" VerticalAlignment="Center" Margin="4"/>
+                                            <TextBlock Grid.Row="3" Grid.Column="1" Text="[mm]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                            <TextBox Grid.Row="3" Grid.Column="2" Style="{StaticResource InputTextBox}"
+                                                     Text="{Binding PrismaticVm.CellThicknessInclCoating_mm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F2}"
+                                                     PreviewTextInput="NumericOnly" Margin="4"/>
+
+                                            <!-- Calculated cell volume -->
+                                            <TextBlock Grid.Row="4" Grid.Column="0" Text="Calculated cell volume" VerticalAlignment="Center" Margin="4"/>
+                                            <TextBlock Grid.Row="4" Grid.Column="1" Text="[cm³]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                            <TextBox Grid.Row="4" Grid.Column="2" Style="{StaticResource CalcTextBox}"
+                                                     Text="{Binding PrismaticVm.CellVolume_cm3, Mode=OneWay, StringFormat=F2}"
+                                                     IsReadOnly="True" Margin="4"/>
+                                        </Grid>
+
+                                        <!-- Update Cell Dimensions Block -->
+                                        <Border BorderBrush="#CCC" BorderThickness="1" Margin="0,8,0,16" Padding="8">
+                                            <StackPanel>
+                                                <TextBlock Text="Update Cell Dimensions" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="150"/>
+                                                        <ColumnDefinition Width="60"/>
+                                                        <ColumnDefinition Width="100"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                    </Grid.RowDefinitions>
+
+                                                    <!-- Height -->
+                                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Height" VerticalAlignment="Center" Margin="4"/>
+                                                    <TextBlock Grid.Row="0" Grid.Column="1" Text="[mm]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                                    <TextBox Grid.Row="0" Grid.Column="2" Style="{StaticResource InputTextBox}"
+                                                             Text="{Binding PrismaticVm.CellHeightY_mm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F2}"
+                                                             PreviewTextInput="NumericOnly" Margin="4"/>
+
+                                                    <!-- Width -->
+                                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Width" VerticalAlignment="Center" Margin="4"/>
+                                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="[mm]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                                    <TextBox Grid.Row="1" Grid.Column="2" Style="{StaticResource InputTextBox}"
+                                                             Text="{Binding PrismaticVm.CellWidthX_mm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F2}"
+                                                             PreviewTextInput="NumericOnly" Margin="4"/>
+
+                                                    <!-- Thickness -->
+                                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Thickness" VerticalAlignment="Center" Margin="4"/>
+                                                    <TextBlock Grid.Row="2" Grid.Column="1" Text="[mm]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                                    <TextBox Grid.Row="2" Grid.Column="2" Style="{StaticResource InputTextBox}"
+                                                             Text="{Binding PrismaticVm.CellThicknessInclCoating_mm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F2}"
+                                                             PreviewTextInput="NumericOnly" Margin="4"/>
+                                                </Grid>
+                                                <Button Content="Update" Command="{Binding PrismaticVm.UpdateCellDimensionsCommand}"
+                                                        Margin="4,8,4,0" Padding="8,4" HorizontalAlignment="Left" MinWidth="80"/>
+                                                <TextBlock Text="*Updates cathode sheet by keeping internal offsets"
+                                                           FontSize="10" FontStyle="Italic" Foreground="#666" Margin="4,4,4,0"/>
+                                            </StackPanel>
+                                        </Border>
+
+                                        <!-- Wall Thickness -->
+                                        <TextBlock Text="Wall Thickness" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                                        <Grid Margin="0,0,0,16">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="220"/>
+                                                <ColumnDefinition Width="60"/>
+                                                <ColumnDefinition Width="120"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+
+                                            <!-- Side Walls (x/y) -->
+                                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Side Walls (x/y)" VerticalAlignment="Center" Margin="4"/>
+                                            <TextBlock Grid.Row="0" Grid.Column="1" Text="[mm]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                            <TextBox Grid.Row="0" Grid.Column="2" Style="{StaticResource InputTextBox}"
+                                                     Text="{Binding PrismaticVm.WallSideXY_mm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F1}"
+                                                     PreviewTextInput="NumericOnly" Margin="4"/>
+
+                                            <!-- Side Walls (z/y) -->
+                                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Side Walls (z/y)" VerticalAlignment="Center" Margin="4"/>
+                                            <TextBlock Grid.Row="1" Grid.Column="1" Text="[mm]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                            <TextBox Grid.Row="1" Grid.Column="2" Style="{StaticResource InputTextBox}"
+                                                     Text="{Binding PrismaticVm.WallSideZY_mm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F1}"
+                                                     PreviewTextInput="NumericOnly" Margin="4"/>
+
+                                            <!-- Top lid (x/z) -->
+                                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Top lid (x/z)" VerticalAlignment="Center" Margin="4"/>
+                                            <TextBlock Grid.Row="2" Grid.Column="1" Text="[mm]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                            <TextBox Grid.Row="2" Grid.Column="2" Style="{StaticResource InputTextBox}"
+                                                     Text="{Binding PrismaticVm.WallTopXZ_mm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F1}"
+                                                     PreviewTextInput="NumericOnly" Margin="4"/>
+
+                                            <!-- Bottom lid (x/z) -->
+                                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Bottom lid (x/z)" VerticalAlignment="Center" Margin="4"/>
+                                            <TextBlock Grid.Row="3" Grid.Column="1" Text="[mm]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                            <TextBox Grid.Row="3" Grid.Column="2" Style="{StaticResource InputTextBox}"
+                                                     Text="{Binding PrismaticVm.WallBottomXZ_mm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F1}"
+                                                     PreviewTextInput="NumericOnly" Margin="4"/>
+                                        </Grid>
+
+                                        <!-- Update Wall Thickness Block -->
+                                        <Border BorderBrush="#CCC" BorderThickness="1" Margin="0,8,0,16" Padding="8">
+                                            <StackPanel>
+                                                <TextBlock Text="Update Wall Thickness" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="150"/>
+                                                        <ColumnDefinition Width="60"/>
+                                                        <ColumnDefinition Width="100"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                    </Grid.RowDefinitions>
+
+                                                    <!-- Side Walls (x/y) -->
+                                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Side Walls (x/y)" VerticalAlignment="Center" Margin="4"/>
+                                                    <TextBlock Grid.Row="0" Grid.Column="1" Text="[mm]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                                    <TextBox Grid.Row="0" Grid.Column="2" Style="{StaticResource InputTextBox}"
+                                                             Text="{Binding PrismaticVm.WallSideXY_mm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F1}"
+                                                             PreviewTextInput="NumericOnly" Margin="4"/>
+
+                                                    <!-- Side Walls (z/y) -->
+                                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Side Walls (z/y)" VerticalAlignment="Center" Margin="4"/>
+                                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="[mm]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                                    <TextBox Grid.Row="1" Grid.Column="2" Style="{StaticResource InputTextBox}"
+                                                             Text="{Binding PrismaticVm.WallSideZY_mm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F1}"
+                                                             PreviewTextInput="NumericOnly" Margin="4"/>
+
+                                                    <!-- Top lid (x/z) -->
+                                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Top lid (x/z)" VerticalAlignment="Center" Margin="4"/>
+                                                    <TextBlock Grid.Row="2" Grid.Column="1" Text="[mm]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                                    <TextBox Grid.Row="2" Grid.Column="2" Style="{StaticResource InputTextBox}"
+                                                             Text="{Binding PrismaticVm.WallTopXZ_mm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F1}"
+                                                             PreviewTextInput="NumericOnly" Margin="4"/>
+
+                                                    <!-- Bottom lid (x/z) -->
+                                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Bottom lid (x/z)" VerticalAlignment="Center" Margin="4"/>
+                                                    <TextBlock Grid.Row="3" Grid.Column="1" Text="[mm]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                                    <TextBox Grid.Row="3" Grid.Column="2" Style="{StaticResource InputTextBox}"
+                                                             Text="{Binding PrismaticVm.WallBottomXZ_mm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F1}"
+                                                             PreviewTextInput="NumericOnly" Margin="4"/>
+                                                </Grid>
+                                                <Button Content="Update" Command="{Binding PrismaticVm.UpdateWallThicknessCommand}"
+                                                        Margin="4,8,4,0" Padding="8,4" HorizontalAlignment="Left" MinWidth="80"/>
+                                                <TextBlock Text="*Updates cathode sheet by keeping internal offsets"
+                                                           FontSize="10" FontStyle="Italic" Foreground="#666" Margin="4,4,4,0"/>
+                                            </StackPanel>
+                                        </Border>
+
+                                        <!-- Separator dimension -->
+                                        <TextBlock Text="Separator dimension" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                                        <Grid Margin="0,0,0,16">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="220"/>
+                                                <ColumnDefinition Width="60"/>
+                                                <ColumnDefinition Width="120"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+
+                                            <!-- Height -->
+                                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Height" VerticalAlignment="Center" Margin="4"/>
+                                            <TextBlock Grid.Row="0" Grid.Column="1" Text="[mm]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                            <TextBox Grid.Row="0" Grid.Column="2" Style="{StaticResource CalcTextBox}"
+                                                     Text="{Binding PrismaticVm.PackagingSeparatorHeight_mm, Mode=OneWay, StringFormat=F2}"
+                                                     IsReadOnly="True" Margin="4"/>
+
+                                            <!-- Width -->
+                                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Width" VerticalAlignment="Center" Margin="4"/>
+                                            <TextBlock Grid.Row="1" Grid.Column="1" Text="[mm]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                            <TextBox Grid.Row="1" Grid.Column="2" Style="{StaticResource CalcTextBox}"
+                                                     Text="{Binding PrismaticVm.PackagingSeparatorWidth_mm, Mode=OneWay, StringFormat=F2}"
+                                                     IsReadOnly="True" Margin="4"/>
+                                        </Grid>
+
+                                        <!-- Internal offset to cell dimension (separator) -->
+                                        <TextBlock Text="Internal offset to cell dimension (separator)" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                                        <Grid Margin="0,0,0,16">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="220"/>
+                                                <ColumnDefinition Width="60"/>
+                                                <ColumnDefinition Width="120"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+
+                                            <!-- Height -->
+                                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Height" VerticalAlignment="Center" Margin="4"/>
+                                            <TextBlock Grid.Row="0" Grid.Column="1" Text="[mm]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                            <TextBox Grid.Row="0" Grid.Column="2" Style="{StaticResource CalcTextBox}"
+                                                     Text="{Binding PrismaticVm.SeparatorOffsetHeight_mm, Mode=OneWay, StringFormat=F2}"
+                                                     IsReadOnly="True" Margin="4"/>
+
+                                            <!-- Width -->
+                                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Width" VerticalAlignment="Center" Margin="4"/>
+                                            <TextBlock Grid.Row="1" Grid.Column="1" Text="[mm]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                            <TextBox Grid.Row="1" Grid.Column="2" Style="{StaticResource CalcTextBox}"
+                                                     Text="{Binding PrismaticVm.SeparatorOffsetWidth_mm, Mode=OneWay, StringFormat=F2}"
+                                                     IsReadOnly="True" Margin="4"/>
+
+                                            <!-- Thickness (0%) -->
+                                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Thickness (0%)" VerticalAlignment="Center" Margin="4"/>
+                                            <TextBlock Grid.Row="2" Grid.Column="1" Text="[mm]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                            <TextBox Grid.Row="2" Grid.Column="2" Style="{StaticResource CalcTextBox}"
+                                                     Text="{Binding PrismaticVm.SeparatorOffsetThickness0_mm, Mode=OneWay, StringFormat=F2}"
+                                                     IsReadOnly="True" Margin="4"/>
+
+                                            <!-- Separator compression -->
+                                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Separator compression" VerticalAlignment="Center" Margin="4"/>
+                                            <TextBlock Grid.Row="3" Grid.Column="1" Text="[%]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                            <TextBox Grid.Row="3" Grid.Column="2" Style="{StaticResource CalcTextBox}"
+                                                     Text="{Binding PrismaticVm.SeparatorCompression_pct, Mode=OneWay, StringFormat=F2}"
+                                                     IsReadOnly="True" Margin="4"/>
+                                        </Grid>
+
+                                        <!-- Stack position in cell -->
+                                        <TextBlock Text="Stack position in cell" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                                        <Grid Margin="0,0,0,16">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="220"/>
+                                                <ColumnDefinition Width="60"/>
+                                                <ColumnDefinition Width="120"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+
+                                            <!-- Offset to bottom of cell (?) -->
+                                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Offset to bottom of cell (?)" VerticalAlignment="Center" Margin="4"/>
+                                            <TextBlock Grid.Row="0" Grid.Column="1" Text="[mm]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                            <TextBox Grid.Row="0" Grid.Column="2" Style="{StaticResource CalcTextBox}"
+                                                     Text="{Binding PrismaticVm.StackOffsetBottom_mm, Mode=OneWay, StringFormat=F2}"
+                                                     IsReadOnly="True" Margin="4"/>
+
+                                            <!-- Offset to left start of cell (?) -->
+                                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Offset to left start of cell (?)" VerticalAlignment="Center" Margin="4"/>
+                                            <TextBlock Grid.Row="1" Grid.Column="1" Text="[mm]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                            <TextBox Grid.Row="1" Grid.Column="2" Style="{StaticResource CalcTextBox}"
+                                                     Text="{Binding PrismaticVm.StackOffsetLeft_mm, Mode=OneWay, StringFormat=F2}"
+                                                     IsReadOnly="True" Margin="4"/>
+                                        </Grid>
+
+                                        <!-- Insulation Coating on cell (side walls) -->
+                                        <TextBlock Text="Insulation Coating on cell (side walls)" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                                        <Grid Margin="0,0,0,16">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="220"/>
+                                                <ColumnDefinition Width="60"/>
+                                                <ColumnDefinition Width="120"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+
+                                            <!-- Choose foil (packaging) -->
+                                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Choose foil (packaging)" VerticalAlignment="Center" Margin="4"/>
+                                            <ComboBox Grid.Row="0" Grid.Column="2"
+                                                      ItemsSource="{Binding PrismaticVm.InsulationFoilPresets}"
+                                                      SelectedItem="{Binding PrismaticVm.InsulationFoilName, Mode=TwoWay}"
+                                                      Margin="4"/>
+
+                                            <!-- Version -->
+                                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Version" VerticalAlignment="Center" Margin="4"/>
+                                            <ComboBox Grid.Row="1" Grid.Column="2"
+                                                      ItemsSource="{Binding PrismaticVm.InsulationFoilVersionPresets}"
+                                                      SelectedItem="{Binding PrismaticVm.InsulationFoilVersion, Mode=TwoWay}"
+                                                      Margin="4"/>
+
+                                            <!-- Thickness -->
+                                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Thickness" VerticalAlignment="Center" Margin="4"/>
+                                            <TextBlock Grid.Row="2" Grid.Column="1" Text="[um]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                            <TextBox Grid.Row="2" Grid.Column="2" Style="{StaticResource InputTextBox}"
+                                                     Text="{Binding PrismaticVm.InsulationFoilThickness_um, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F0}"
+                                                     PreviewTextInput="NumericOnly" Margin="4"/>
+                                        </Grid>
+                                        </StackPanel>
+                                    </ScrollViewer>
+                                </Grid>
+
+                                <!-- Table Sub-Panel -->
+                                <Grid x:Name="PrismSubPanelTable"
+                                      Visibility="{Binding IsChecked, ElementName=PrismSubTabTable, Converter={StaticResource BoolToVis}}">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+
+                                    <TextBlock Grid.Row="0" Text="Table with Packaging Components"
+                                               FontWeight="Bold"
+                                               FontSize="14"
+                                               Margin="16,16,16,8"/>
+
+                                    <ScrollViewer Grid.Row="1"
+                                                  VerticalScrollBarVisibility="Auto"
+                                                  HorizontalScrollBarVisibility="Auto"
+                                                  Margin="16,0,16,16">
+                                        <DataGrid ItemsSource="{Binding PrismaticVm.PackagingComponents}"
+                                                  AutoGenerateColumns="False"
+                                                  HeadersVisibility="Column"
+                                                  CanUserAddRows="False"
+                                                  CanUserDeleteRows="False"
+                                                  CanUserReorderColumns="False"
+                                                  CanUserSortColumns="False"
+                                                  IsReadOnly="False"
+                                                  AlternatingRowBackground="#F5F5F5"
+                                                  GridLinesVisibility="All"
+                                                  HorizontalGridLinesBrush="#E0E0E0"
+                                                  VerticalGridLinesBrush="#E0E0E0">
+                                        <DataGrid.Columns>
+                                            <!-- No. (read-only) -->
+                                            <DataGridTextColumn Header="No."
+                                                                Binding="{Binding No}"
+                                                                IsReadOnly="True"
+                                                                Width="50"/>
+
+                                            <!-- Name (editable) -->
+                                            <DataGridTextColumn Header="Name"
+                                                                Binding="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                Width="*"
+                                                                MinWidth="120"/>
+
+                                            <!-- Material (editable) -->
+                                            <DataGridTextColumn Header="Material"
+                                                                Binding="{Binding Material, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                Width="120"/>
+
+                                            <!-- Version (editable) -->
+                                            <DataGridTextColumn Header="Version"
+                                                                Binding="{Binding Version, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                Width="120"/>
+
+                                            <!-- Mass [g] -->
+                                            <DataGridTextColumn Header="Mass [g]"
+                                                                Binding="{Binding Mass_g, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F2}"
+                                                                Width="100"/>
+
+                                            <!-- Volume [cm³] -->
+                                            <DataGridTextColumn Header="Volume [cm³]"
+                                                                Binding="{Binding Volume_cm3, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F3}"
+                                                                Width="110"/>
+
+                                            <!-- Density [g/cm³] -->
+                                            <DataGridTextColumn Header="Density [g/cm³]"
+                                                                Binding="{Binding Density_gcm3, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F2}"
+                                                                Width="110"/>
+
+                                            <!-- Cost [€] -->
+                                            <DataGridTextColumn Header="Cost [€]"
+                                                                Binding="{Binding Cost_EUR, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F2}"
+                                                                Width="90"/>
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+                                    </ScrollViewer>
+                                </Grid>
+
+                                <!-- Add. Foils Sub-Panel -->
+                                <Grid x:Name="PrismSubPanelAddFoils"
+                                      Visibility="{Binding IsChecked, ElementName=PrismSubTabAddFoils, Converter={StaticResource BoolToVis}}">
+                                    <StackPanel>
+                                        <TextBlock Text="Packaging / Add. Foils" FontSize="18" FontWeight="Bold" Margin="0,0,0,16"/>
+
+                                        <!-- ========== OVERWRAP SECTION ========== -->
+                                        <TextBlock Text="Overwrap" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,12"/>
+
+                                        <!-- Overwrap Material Composition Table -->
+                                        <TextBlock Text="Overwrap Material Composition" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                                        <DataGrid ItemsSource="{Binding PrismaticVm.OverwrapComposition}"
+                                                  IsReadOnly="False"
+                                                  CanUserAddRows="False"
+                                                  CanUserDeleteRows="False"
+                                                  CanUserReorderColumns="False"
+                                                  CanUserResizeRows="False"
+                                                  CanUserSortColumns="False"
+                                                  AutoGenerateColumns="False"
+                                                  HeadersVisibility="Column"
+                                                  GridLinesVisibility="All"
+                                                  BorderBrush="#CCC"
+                                                  BorderThickness="1"
+                                                  Background="White"
+                                                  RowBackground="White"
+                                                  AlternatingRowBackground="#F8F8F8"
+                                                  Margin="0,0,0,8">
+                                            <DataGrid.ColumnHeaderStyle>
+                                                <Style TargetType="DataGridColumnHeader">
+                                                    <Setter Property="Background" Value="#333"/>
+                                                    <Setter Property="Foreground" Value="White"/>
+                                                    <Setter Property="FontWeight" Value="Bold"/>
+                                                    <Setter Property="Padding" Value="8,4"/>
+                                                    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                                                    <Setter Property="BorderBrush" Value="#CCC"/>
+                                                    <Setter Property="BorderThickness" Value="0,0,1,1"/>
+                                                </Style>
+                                            </DataGrid.ColumnHeaderStyle>
+                                            <DataGrid.CellStyle>
+                                                <Style TargetType="DataGridCell">
+                                                    <Setter Property="Padding" Value="4"/>
+                                                    <Setter Property="BorderBrush" Value="#CCC"/>
+                                                    <Setter Property="BorderThickness" Value="0,0,1,1"/>
+                                                </Style>
+                                            </DataGrid.CellStyle>
+                                            <DataGrid.Columns>
+                                                <DataGridTextColumn Header="#" Binding="{Binding No}" Width="40">
+                                                    <DataGridTextColumn.ElementStyle>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                                        </Style>
+                                                    </DataGridTextColumn.ElementStyle>
+                                                </DataGridTextColumn>
+                                                <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*" MinWidth="120">
+                                                    <DataGridTextColumn.ElementStyle>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                                            <Setter Property="Margin" Value="4,0"/>
+                                                        </Style>
+                                                    </DataGridTextColumn.ElementStyle>
+                                                </DataGridTextColumn>
+                                                <DataGridComboBoxColumn Header="Version"
+                                                                        SelectedItemBinding="{Binding Version, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                        Width="140">
+                                                    <DataGridComboBoxColumn.ElementStyle>
+                                                        <Style TargetType="ComboBox">
+                                                            <Setter Property="ItemsSource" Value="{Binding DataContext.PrismaticVm.OverwrapMaterialPresets, RelativeSource={RelativeSource AncestorType=DataGrid}}"/>
+                                                            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+                                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                                            <Setter Property="Background" Value="Black"/>
+                                                            <Setter Property="Foreground" Value="White"/>
+                                                        </Style>
+                                                    </DataGridComboBoxColumn.ElementStyle>
+                                                    <DataGridComboBoxColumn.EditingElementStyle>
+                                                        <Style TargetType="ComboBox">
+                                                            <Setter Property="ItemsSource" Value="{Binding DataContext.PrismaticVm.OverwrapMaterialPresets, RelativeSource={RelativeSource AncestorType=DataGrid}}"/>
+                                                            <Setter Property="Background" Value="Black"/>
+                                                            <Setter Property="Foreground" Value="White"/>
+                                                        </Style>
+                                                    </DataGridComboBoxColumn.EditingElementStyle>
+                                                </DataGridComboBoxColumn>
+                                                <DataGridTextColumn Header="Thickness [µm]" Binding="{Binding Thickness_um, StringFormat=F2}" Width="140">
+                                                    <DataGridTextColumn.ElementStyle>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="HorizontalAlignment" Value="Right"/>
+                                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                                            <Setter Property="Margin" Value="0,0,8,0"/>
+                                                        </Style>
+                                                    </DataGridTextColumn.ElementStyle>
+                                                </DataGridTextColumn>
+                                                <DataGridTextColumn Header="Porosity [%]" Binding="{Binding Porosity_pct, StringFormat=F2}" Width="120">
+                                                    <DataGridTextColumn.ElementStyle>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="HorizontalAlignment" Value="Right"/>
+                                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                                            <Setter Property="Margin" Value="0,0,8,0"/>
+                                                        </Style>
+                                                    </DataGridTextColumn.ElementStyle>
+                                                </DataGridTextColumn>
+                                                <DataGridTextColumn Header="Density [g/cm³]" Binding="{Binding Density_gcm3, StringFormat=F4}" Width="140">
+                                                    <DataGridTextColumn.ElementStyle>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="HorizontalAlignment" Value="Right"/>
+                                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                                            <Setter Property="Margin" Value="0,0,8,0"/>
+                                                        </Style>
+                                                    </DataGridTextColumn.ElementStyle>
+                                                </DataGridTextColumn>
+                                            </DataGrid.Columns>
+                                        </DataGrid>
+
+                                        <!-- Overwrap Material Properties -->
+                                        <TextBlock Text="Overwrap Material Properties" FontSize="14" FontWeight="SemiBold" Margin="0,16,0,8"/>
+                                        <Border Background="#F0F0F0" BorderBrush="#CCC" BorderThickness="1" Padding="12">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="200"/>
+                                                    <ColumnDefinition Width="80"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                </Grid.RowDefinitions>
+
+                                                <!-- Thickness (sum) -->
+                                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Thickness (sum)" VerticalAlignment="Center" Margin="4"/>
+                                                <TextBlock Grid.Row="0" Grid.Column="1" Text="[µm]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                                <TextBox Grid.Row="0" Grid.Column="2" Style="{StaticResource CalcTextBox}"
+                                                         Text="{Binding PrismaticVm.OverwrapThicknessSum_um, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F2}" Margin="4"/>
+                                                <TextBox Grid.Row="0" Grid.Column="3" Style="{StaticResource InputTextBox}"
+                                                         Text="{Binding PrismaticVm.OverwrapThicknessNote, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="4"/>
+
+                                                <!-- Areal Weight -->
+                                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Areal Weight" VerticalAlignment="Center" Margin="4"/>
+                                                <TextBlock Grid.Row="1" Grid.Column="1" Text="[mg/cm²]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                                <TextBox Grid.Row="1" Grid.Column="2" Style="{StaticResource CalcTextBox}"
+                                                         Text="{Binding PrismaticVm.OverwrapArealWeight_mgcm2, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F3}" Margin="4"/>
+                                                <TextBox Grid.Row="1" Grid.Column="3" Style="{StaticResource InputTextBox}"
+                                                         Text="{Binding PrismaticVm.OverwrapArealWeightNote, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="4"/>
+
+                                                <!-- Effective Density -->
+                                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Effective Density" VerticalAlignment="Center" Margin="4"/>
+                                                <TextBlock Grid.Row="2" Grid.Column="1" Text="[g/cm³]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                                <TextBox Grid.Row="2" Grid.Column="2" Style="{StaticResource CalcTextBox}"
+                                                         Text="{Binding PrismaticVm.OverwrapEffDensity_gcm3, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F4}" Margin="4"/>
+                                                <TextBox Grid.Row="2" Grid.Column="3" Style="{StaticResource InputTextBox}"
+                                                         Text="{Binding PrismaticVm.OverwrapEffDensityNote, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="4"/>
+
+                                                <!-- Cost -->
+                                                <TextBlock Grid.Row="3" Grid.Column="0" Text="Cost" VerticalAlignment="Center" Margin="4"/>
+                                                <TextBlock Grid.Row="3" Grid.Column="1" Text="[€/m²]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                                <TextBox Grid.Row="3" Grid.Column="2" Style="{StaticResource InputTextBox}"
+                                                         Text="{Binding PrismaticVm.OverwrapCost_EURm2, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F2}" Margin="4"/>
+                                                <TextBox Grid.Row="3" Grid.Column="3" Style="{StaticResource InputTextBox}"
+                                                         Text="{Binding PrismaticVm.OverwrapCostNote, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="4"/>
+                                            </Grid>
+                                        </Border>
+
+                                        <!-- ========== INSULATION SHELL SECTION ========== -->
+                                        <TextBlock Text="Insulation Shell" FontSize="16" FontWeight="SemiBold" Margin="0,32,0,12"/>
+
+                                        <!-- Insulation Shell Material Composition Table -->
+                                        <TextBlock Text="Insulation Shell Material Composition" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                                        <DataGrid ItemsSource="{Binding PrismaticVm.InsShellComposition}"
+                                                  IsReadOnly="False"
+                                                  CanUserAddRows="False"
+                                                  CanUserDeleteRows="False"
+                                                  CanUserReorderColumns="False"
+                                                  CanUserResizeRows="False"
+                                                  CanUserSortColumns="False"
+                                                  AutoGenerateColumns="False"
+                                                  HeadersVisibility="Column"
+                                                  GridLinesVisibility="All"
+                                                  BorderBrush="#CCC"
+                                                  BorderThickness="1"
+                                                  Background="White"
+                                                  RowBackground="White"
+                                                  AlternatingRowBackground="#F8F8F8"
+                                                  Margin="0,0,0,8">
+                                            <DataGrid.ColumnHeaderStyle>
+                                                <Style TargetType="DataGridColumnHeader">
+                                                    <Setter Property="Background" Value="#333"/>
+                                                    <Setter Property="Foreground" Value="White"/>
+                                                    <Setter Property="FontWeight" Value="Bold"/>
+                                                    <Setter Property="Padding" Value="8,4"/>
+                                                    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                                                    <Setter Property="BorderBrush" Value="#CCC"/>
+                                                    <Setter Property="BorderThickness" Value="0,0,1,1"/>
+                                                </Style>
+                                            </DataGrid.ColumnHeaderStyle>
+                                            <DataGrid.CellStyle>
+                                                <Style TargetType="DataGridCell">
+                                                    <Setter Property="Padding" Value="4"/>
+                                                    <Setter Property="BorderBrush" Value="#CCC"/>
+                                                    <Setter Property="BorderThickness" Value="0,0,1,1"/>
+                                                </Style>
+                                            </DataGrid.CellStyle>
+                                            <DataGrid.Columns>
+                                                <DataGridTextColumn Header="#" Binding="{Binding No}" Width="40">
+                                                    <DataGridTextColumn.ElementStyle>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                                        </Style>
+                                                    </DataGridTextColumn.ElementStyle>
+                                                </DataGridTextColumn>
+                                                <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*" MinWidth="120">
+                                                    <DataGridTextColumn.ElementStyle>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                                            <Setter Property="Margin" Value="4,0"/>
+                                                        </Style>
+                                                    </DataGridTextColumn.ElementStyle>
+                                                </DataGridTextColumn>
+                                                <DataGridComboBoxColumn Header="Version"
+                                                                        SelectedItemBinding="{Binding Version, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                        Width="140">
+                                                    <DataGridComboBoxColumn.ElementStyle>
+                                                        <Style TargetType="ComboBox">
+                                                            <Setter Property="ItemsSource" Value="{Binding DataContext.PrismaticVm.InsShellMaterialPresets, RelativeSource={RelativeSource AncestorType=DataGrid}}"/>
+                                                            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+                                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                                            <Setter Property="Background" Value="Black"/>
+                                                            <Setter Property="Foreground" Value="White"/>
+                                                        </Style>
+                                                    </DataGridComboBoxColumn.ElementStyle>
+                                                    <DataGridComboBoxColumn.EditingElementStyle>
+                                                        <Style TargetType="ComboBox">
+                                                            <Setter Property="ItemsSource" Value="{Binding DataContext.PrismaticVm.InsShellMaterialPresets, RelativeSource={RelativeSource AncestorType=DataGrid}}"/>
+                                                            <Setter Property="Background" Value="Black"/>
+                                                            <Setter Property="Foreground" Value="White"/>
+                                                        </Style>
+                                                    </DataGridComboBoxColumn.EditingElementStyle>
+                                                </DataGridComboBoxColumn>
+                                                <DataGridTextColumn Header="Thickness [µm]" Binding="{Binding Thickness_um, StringFormat=F2}" Width="140">
+                                                    <DataGridTextColumn.ElementStyle>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="HorizontalAlignment" Value="Right"/>
+                                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                                            <Setter Property="Margin" Value="0,0,8,0"/>
+                                                        </Style>
+                                                    </DataGridTextColumn.ElementStyle>
+                                                </DataGridTextColumn>
+                                                <DataGridTextColumn Header="Porosity [%]" Binding="{Binding Porosity_pct, StringFormat=F2}" Width="120">
+                                                    <DataGridTextColumn.ElementStyle>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="HorizontalAlignment" Value="Right"/>
+                                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                                            <Setter Property="Margin" Value="0,0,8,0"/>
+                                                        </Style>
+                                                    </DataGridTextColumn.ElementStyle>
+                                                </DataGridTextColumn>
+                                                <DataGridTextColumn Header="Density [g/cm³]" Binding="{Binding Density_gcm3, StringFormat=F4}" Width="140">
+                                                    <DataGridTextColumn.ElementStyle>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="HorizontalAlignment" Value="Right"/>
+                                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                                            <Setter Property="Margin" Value="0,0,8,0"/>
+                                                        </Style>
+                                                    </DataGridTextColumn.ElementStyle>
+                                                </DataGridTextColumn>
+                                            </DataGrid.Columns>
+                                        </DataGrid>
+
+                                        <!-- Insulation Shell Material Properties -->
+                                        <TextBlock Text="Insulation Shell Material Properties" FontSize="14" FontWeight="SemiBold" Margin="0,16,0,8"/>
+                                        <Border Background="#F0F0F0" BorderBrush="#CCC" BorderThickness="1" Padding="12">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="200"/>
+                                                    <ColumnDefinition Width="80"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                </Grid.RowDefinitions>
+
+                                                <!-- Thickness (sum) -->
+                                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Thickness (sum)" VerticalAlignment="Center" Margin="4"/>
+                                                <TextBlock Grid.Row="0" Grid.Column="1" Text="[µm]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                                <TextBox Grid.Row="0" Grid.Column="2" Style="{StaticResource CalcTextBox}"
+                                                         Text="{Binding PrismaticVm.InsShellThicknessSum_um, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F2}" Margin="4"/>
+                                                <TextBox Grid.Row="0" Grid.Column="3" Style="{StaticResource InputTextBox}"
+                                                         Text="{Binding PrismaticVm.InsShellThicknessNote, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="4"/>
+
+                                                <!-- Areal Weight -->
+                                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Areal Weight" VerticalAlignment="Center" Margin="4"/>
+                                                <TextBlock Grid.Row="1" Grid.Column="1" Text="[mg/cm²]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                                <TextBox Grid.Row="1" Grid.Column="2" Style="{StaticResource CalcTextBox}"
+                                                         Text="{Binding PrismaticVm.InsShellArealWeight_mgcm2, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F3}" Margin="4"/>
+                                                <TextBox Grid.Row="1" Grid.Column="3" Style="{StaticResource InputTextBox}"
+                                                         Text="{Binding PrismaticVm.InsShellArealWeightNote, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="4"/>
+
+                                                <!-- Effective Density -->
+                                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Effective Density" VerticalAlignment="Center" Margin="4"/>
+                                                <TextBlock Grid.Row="2" Grid.Column="1" Text="[g/cm³]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                                <TextBox Grid.Row="2" Grid.Column="2" Style="{StaticResource CalcTextBox}"
+                                                         Text="{Binding PrismaticVm.InsShellEffDensity_gcm3, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F4}" Margin="4"/>
+                                                <TextBox Grid.Row="2" Grid.Column="3" Style="{StaticResource InputTextBox}"
+                                                         Text="{Binding PrismaticVm.InsShellEffDensityNote, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="4"/>
+
+                                                <!-- Cost -->
+                                                <TextBlock Grid.Row="3" Grid.Column="0" Text="Cost" VerticalAlignment="Center" Margin="4"/>
+                                                <TextBlock Grid.Row="3" Grid.Column="1" Text="[€/m²]" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
+                                                <TextBox Grid.Row="3" Grid.Column="2" Style="{StaticResource InputTextBox}"
+                                                         Text="{Binding PrismaticVm.InsShellCost_EURm2, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F2}" Margin="4"/>
+                                                <TextBox Grid.Row="3" Grid.Column="3" Style="{StaticResource InputTextBox}"
+                                                         Text="{Binding PrismaticVm.InsShellCostNote, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="4"/>
+                                            </Grid>
+                                        </Border>
+                                    </StackPanel>
+                                </Grid>
+
+                                <!-- Fixing Tape Sub-Panel (placeholder) -->
+                                <Grid x:Name="PrismSubPanelFixingTape"
+                                      Visibility="{Binding IsChecked, ElementName=PrismSubTabFixingTape, Converter={StaticResource BoolToVis}}">
+                                    <TextBlock Text="Prismatic Fixing Tape – not implemented yet"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"
+                                               FontSize="16"
+                                               FontStyle="Italic"
+                                               Foreground="#999"/>
+                                </Grid>
+                            </Grid>
                         </Grid>
 
                         <!-- Report Panel -->

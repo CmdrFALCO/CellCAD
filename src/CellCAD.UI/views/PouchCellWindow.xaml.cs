@@ -78,6 +78,8 @@ namespace CellCAD.views
 
         private void RenderSheetViews()
         {
+            // TODO: Make renderers fully aware of prismatic VM once prismatic visual requirements are defined
+            // Currently only renders pouch geometry
             if (_canvasFullLayout != null)
             {
                 SheetRenderer.RenderFullLayout(_canvasFullLayout, _pouchVm);
@@ -90,6 +92,7 @@ namespace CellCAD.views
 
         private void RenderCasePreview()
         {
+            // TODO: Add prismatic case preview rendering
             if (_canvasCasePreview != null)
             {
                 SheetRenderer.DrawPackagingCase(_canvasCasePreview, _pouchVm);
