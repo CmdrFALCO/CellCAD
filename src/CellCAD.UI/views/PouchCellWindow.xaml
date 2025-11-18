@@ -11,6 +11,7 @@
         <!-- Converters -->
         <converters:BoolToVisibilityConverter x:Key="BoolToVis"/>
         <converters:EnumToBooleanConverter x:Key="EnumToBool"/>
+        <converters:EnumToVisibilityConverter x:Key="EnumToVis"/>
         <converters:NullToDashConverter x:Key="NullToDash"/>
 
         <!-- Color Definitions -->
@@ -136,6 +137,7 @@
                     <ColumnDefinition Width="200"/>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="200"/>
+                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
@@ -152,8 +154,31 @@
                     <ComboBoxItem Content="Version 3 – 01.10.25" IsSelected="True"/>
                 </ComboBox>
 
+                <!-- Cell Type Selector -->
+                <StackPanel Grid.Column="4" Orientation="Horizontal" Margin="24,0,24,0">
+                    <TextBlock Text="Cell Type" VerticalAlignment="Center" Margin="0,0,12,0" FontWeight="SemiBold"/>
+                    <RadioButton x:Name="CellTypePouchRadio"
+                                 Content="Pouch"
+                                 GroupName="CellTypeGroup"
+                                 IsChecked="{Binding SelectedCellType, Converter={StaticResource EnumToBool}, ConverterParameter=Pouch}"
+                                 VerticalAlignment="Center"
+                                 Margin="0,0,12,0"/>
+                    <RadioButton x:Name="CellTypePrismaticRadio"
+                                 Content="Prismatic"
+                                 GroupName="CellTypeGroup"
+                                 IsChecked="{Binding SelectedCellType, Converter={StaticResource EnumToBool}, ConverterParameter=Prismatic}"
+                                 VerticalAlignment="Center"
+                                 Margin="0,0,12,0"/>
+                    <RadioButton x:Name="CellTypeCylindricalRadio"
+                                 Content="Cylindrical"
+                                 GroupName="CellTypeGroup"
+                                 IsChecked="{Binding SelectedCellType, Converter={StaticResource EnumToBool}, ConverterParameter=Cylindrical}"
+                                 VerticalAlignment="Center"
+                                 Margin="0,0,0,0"/>
+                </StackPanel>
+
                 <!-- Action Buttons -->
-                <StackPanel Grid.Column="5" Orientation="Horizontal">
+                <StackPanel Grid.Column="6" Orientation="Horizontal">
                     <Button Content="Update" Padding="16,6" Margin="4,0" BorderBrush="Black" BorderThickness="2" Background="White"/>
                     <Button Content="Save as" Padding="16,6" Margin="4,0" BorderBrush="Black" BorderThickness="2" Background="White"/>
                     <Button Content="Delete" Padding="16,6" Margin="4,0" BorderBrush="Black" BorderThickness="2" Background="White"/>
@@ -166,7 +191,11 @@
                       VerticalScrollBarVisibility="Auto"
                       HorizontalScrollBarVisibility="Auto"
                       CanContentScroll="True">
+            <!-- Container for all cell type root panels -->
             <Grid>
+                <!-- ========== POUCH CELL ROOT PANEL ========== -->
+                <Grid x:Name="PouchCellRootGrid"
+                      Visibility="{Binding SelectedCellType, Converter={StaticResource EnumToVis}, ConverterParameter=Pouch}">
                 <Grid.ColumnDefinitions>
                     <!-- LEFT: Navigation sidebar -->
                     <ColumnDefinition Width="180" MinWidth="160"/>
@@ -2752,9 +2781,47 @@
                 </Grid>
             </Border>
         </Grid>
+            </Grid>
+            <!-- End of POUCH CELL ROOT PANEL -->
+
+            <!-- ========== PRISMATIC CELL ROOT PANEL ========== -->
+            <Grid x:Name="PrismaticCellRootGrid"
+                  Visibility="{Binding SelectedCellType, Converter={StaticResource EnumToVis}, ConverterParameter=Prismatic}">
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <TextBlock Text="Prismatic Cell Designer"
+                               FontSize="24"
+                               FontWeight="Bold"
+                               HorizontalAlignment="Center"
+                               Margin="0,0,0,16"/>
+                    <TextBlock Text="Prismatic cell UI not implemented yet"
+                               FontSize="16"
+                               FontStyle="Italic"
+                               Foreground="#666"
+                               HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Grid>
+
+            <!-- ========== CYLINDRICAL CELL ROOT PANEL ========== -->
+            <Grid x:Name="CylindricalCellRootGrid"
+                  Visibility="{Binding SelectedCellType, Converter={StaticResource EnumToVis}, ConverterParameter=Cylindrical}">
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <TextBlock Text="Cylindrical Cell Designer"
+                               FontSize="24"
+                               FontWeight="Bold"
+                               HorizontalAlignment="Center"
+                               Margin="0,0,0,16"/>
+                    <TextBlock Text="Cylindrical cell UI not implemented yet"
+                               FontSize="16"
+                               FontStyle="Italic"
+                               Foreground="#666"
+                               HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Grid>
+
+            </Grid>
+            <!-- End of container for all cell type root panels -->
+        </ScrollViewer>
     </Grid>
-</ScrollViewer>
-</Grid>
 
 <!--
 ====================================================================================================
